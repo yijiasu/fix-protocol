@@ -2,7 +2,6 @@ require 'polyglot'
 require 'treetop'
 
 require 'fix-protocol/grammar'
-require 'fix-protocol/message'
 
 module Fix
 
@@ -14,7 +13,7 @@ module Fix
     @@parser = FixParser.new
 
     #
-    # Parses a FIX message string into a +Fix::Message+ instance
+    # Parses a FIX message string into a +Treetop::Runtime::SyntaxNode+ AST
     #
     def self.parse(str)
       @@parser.parse(str)

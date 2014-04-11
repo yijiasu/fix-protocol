@@ -1,12 +1,14 @@
 require 'treetop'
+
 require 'fix-protocol/parse_failure'
+require 'fix-protocol/message_class_mapping'
 
 module Fix
 
   #
   # Represents an instance of a FIX message
   #
-  class Message < Treetop::Runtime::SyntaxNode
+  class Message
 
     #
     # Parses a string into a Fix::Message instance
@@ -15,26 +17,24 @@ module Fix
     # @return [Fix::Message] A +Fix::Message+ instance, or a +Fix::ParseFailure+ in case of failure
     #
     def self.parse(str)
-      parsed_msg = Parser.parse(str)
+      ast = Parser.parse(str)
 
-      if parsed_msg
-        from_ast(parsed_msg)
+      if ast
+        fields = ast.fields
+        msg_klass = MessageClassMapping.get(fields[2][1])
+        msg_klass.from_ast(ast, str)
       else
         ParseFailure.new
       end
     end
 
 
-    #
-    # Turns an abstract syntax tree in a proper +Fix::Message+ instance
-    #
-    # @param ast [Treetop::Runtime::SyntaxNode] A Treetop AST
-    # @return [Fix::Message] A +Fix::Message+ instance, or a +Fix::ParseFailure+ in case of failure
-    #
-    def from_ast(ast)
+    private
 
-      # TODO
-
+    #
+    # Reads the FIX header, validates the length of the message and its checksum
+    #
+    def validate_message
     end
 
   end

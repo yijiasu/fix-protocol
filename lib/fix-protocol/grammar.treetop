@@ -2,9 +2,11 @@ module Fix
   grammar Fix
 
     rule message
-      field+ {
+      field 8.. {
         def fields
-          elements
+          @fields ||= elements.map do |e|
+            [ e.elements[0].text_value, e.elements[2].text_value ]
+          end
         end
       }
     end

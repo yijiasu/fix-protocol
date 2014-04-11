@@ -1,0 +1,33 @@
+module Fix
+  grammar Fix
+
+    rule message
+      field+ {
+        def fields
+          elements
+        end
+      }
+    end
+
+    rule field
+      tag equal value soh
+    end
+
+    rule tag
+      [1-9] [0-9] ..2
+    end
+
+    rule equal
+      "="
+    end
+
+    rule value
+      [^\x01]+
+    end
+
+    rule soh
+      [\x01]
+    end
+
+  end
+end

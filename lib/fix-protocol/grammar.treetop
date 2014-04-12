@@ -2,9 +2,9 @@ module Fix
   grammar Fix
 
     rule message
-      field 8.. {
+      field 7.. trailer {
         def fields
-          @fields ||= elements.map do |e|
+          @fields ||= [elements.first.elements, elements.last].flatten.map do |e|
             [ e.elements[0].text_value, e.elements[2].text_value ]
           end
         end
@@ -15,8 +15,16 @@ module Fix
       tag equal value soh
     end
 
+    rule trailer
+      checksum_tag equal value soh
+    end
+
     rule tag
-      [1-9] [0-9] ..2
+      !"10" [1-9] [0-9] ..2
+    end
+
+    rule checksum_tag
+      "10"
     end
 
     rule equal

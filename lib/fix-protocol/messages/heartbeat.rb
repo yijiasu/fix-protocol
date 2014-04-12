@@ -8,13 +8,13 @@ module Fix
     class Heartbeat < Message
 
       #
-      # Parses a heartbeat message from a fields collection
+      # Parses a heartbeat message from an AST
       #
       # @param ast [Treetop::Runtime::SyntaxNode] An AST
       # @return [Fix::Messages::Heartbeat] A FIX heartbeat message instance
       #
-      def self.from_fields(fields, str)
-        inst = new(fields, str)
+      def self.from_ast(ast, str)
+        inst = new(ast, str)
       end 
 
     end

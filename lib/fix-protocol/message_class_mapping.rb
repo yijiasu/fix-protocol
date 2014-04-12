@@ -19,7 +19,7 @@ module Fix
     # @return [Class] The FIX message class
     #
     def self.get(msg_type)
-      Messages.const_get(camelcase(MAPPING[msg_type.to_i]))
+      Messages.const_get(camelcase(MAPPING[msg_type]))
     end
 
     #

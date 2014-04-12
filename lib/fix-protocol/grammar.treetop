@@ -2,13 +2,59 @@ module Fix
   grammar Fix
 
     rule message
-      field 7.. trailer {
-        def fields
-          @fields ||= [elements.first.elements, elements.last].flatten.map do |e|
-            [ e.elements[0].text_value, e.elements[2].text_value ]
+      header field+ trailer {
+        def header
+          @header ||= elements[0].elements.map do |e|
+            [ e.elements[0].text_value.to_i, e.elements[2].text_value ]
           end
         end
+
+        def fields
+          @fields ||= elements[1].elements.map do |e|
+            [ e.elements[0].text_value.to_i, e.elements[2].text_value ]
+          end
+        end
+
+        def checksum
+          elements.last.elements[2].text_value.to_i
+        end
+
+        def msg_type
+          header.find { |f| f[0] == 35 }[1].to_i
+        end
       }
+    end
+
+    rule header
+      begin_string body_length msg_type sender_comp_id target_comp_id msg_seq_num sending_time
+    end
+
+    rule begin_string
+      "8" equal value soh
+    end
+
+    rule body_length
+      "9" equal value soh
+    end
+
+    rule msg_type
+      "35" equal value soh
+    end
+
+    rule sender_comp_id
+      "49" equal value soh
+    end
+
+    rule target_comp_id
+      "56" equal value soh
+    end
+
+    rule msg_seq_num
+      "34" equal value soh
+    end
+
+    rule sending_time
+      "52" equal value soh
     end
 
     rule field

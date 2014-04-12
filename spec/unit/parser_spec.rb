@@ -17,7 +17,7 @@ describe Fix::Parser do
     end
 
     it 'should have the correct number of fields' do
-      @parsed_msg.fields.count.should be(9)
+      @parsed_msg.fields.count.should be(1)
     end
   end
 

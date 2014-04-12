@@ -13,9 +13,15 @@ module Fix
       # @param ast [Treetop::Runtime::SyntaxNode] An AST
       # @return [Fix::Messages::Heartbeat] A FIX heartbeat message instance
       #
-      def self.from_ast(ast, str)
-        inst = new(ast, str)
-      end 
+     # def self.from_ast(ast, str)
+     #   new(ast, str)
+     # end 
+
+      #
+      # Returns the TestReqId property of the heartbeat message
+      def test_req_id
+        body_tag(112, 0)
+      end
 
     end
 

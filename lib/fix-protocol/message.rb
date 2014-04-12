@@ -14,7 +14,7 @@ module Fix
     #
     FIX_VERSIONS = %w{ 4.1 4.2 4.4 }.map { |v| "FIX.#{v}" }
 
-    attr_accessor :raw, :header, :fields, :checksum, :version, :body_length, :sender_comp_id, :target_comp_id, :msg_seq_num, :sending_time, :checksum
+    attr_accessor :raw, :header, :body, :checksum, :version, :body_length, :sender_comp_id, :target_comp_id, :msg_seq_num, :sending_time, :checksum
 
     #
     # Parses a string into a Fix::Message instance
@@ -27,7 +27,7 @@ module Fix
 
       if ast
         msg_klass = MessageClassMapping.get(ast.msg_type)
-        msg_klass.from_ast(ast, str)
+        msg_klass.new(ast, str)
       else
         ParseFailure.new
       end
@@ -35,7 +35,7 @@ module Fix
 
     def initialize(ast, str)
       @header   = ast.header
-      @fields   = ast.fields
+      @body     = ast.body
       @checksum = ast.checksum
       @raw      = str
 
@@ -77,12 +77,33 @@ module Fix
     # Reads the FIX header, validates the length of the message and its checksum
     #
     def parse_header
-      @version        = header_tag(8, 0, FIX_VERSIONS)
+      @version        = header_tag(8, 0)
       @body_length    = header_tag(9, 1).to_i
       @sender_comp_id = header_tag(49)
       @sender_comp_id = header_tag(56)
       @msg_seq_num    = header_tag(34)
       @sending_time   = header_tag(52)
+    end
+
+    #
+    # Returns the first value of a field in the given fields array, 
+    # if the +position+ is specified then it will be enforced.
+    #
+    # +nil+ is returned if the field isn't found, or isn't found at the specified position
+    #
+    # @param fields [Array] The fields among which the tag value should be searched
+    # @param tag [Fixnum] The tag code for which the value should be fetched
+    # @param position [Fixnum] The position at which the field is supposed to be located 
+    #
+    def get_tag_value(fields, tag, position = nil)
+      if position
+        fields[position] && 
+          (fields[position][0] == tag) && 
+          fields[position][1]
+      else
+        fld = fields.find { |f| f[0] == tag }
+        fld && fld[1]
+      end
     end
 
     #
@@ -94,15 +115,21 @@ module Fix
     # @param tag [Fixnum] The tag code for which the value should be fetched
     # @param position [Fixnum] The position at which the field is supposed to be located 
     #
-    def header_tag(tag, position = nil, allowed_values = nil)
-      if position
-        header[position] && 
-          (header[position][0] == tag) && 
-          header[position][1]
-      else
-        fld = header.find { |f| f[0] == tag }
-        fld && fld[1]
-      end
+    def header_tag(tag, position = nil)
+      get_tag_value(header, tag, position)
+    end
+
+    #
+    # Returns the first value of a field in a message body, 
+    # if the +position+ is specified then it will be enforced.
+    #
+    # +nil+ is returned if the field isn't found, or isn't found at the specified position
+    #
+    # @param tag [Fixnum] The tag code for which the value should be fetched
+    # @param position [Fixnum] The position at which the field is supposed to be located 
+    #
+    def body_tag(tag, position = nil)
+      get_tag_value(body, tag, position)
     end
 
   end

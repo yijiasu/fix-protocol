@@ -2,14 +2,25 @@ module Fix
   grammar Fix
 
     rule message
-      header field+ trailer {
+      header body trailer {
         def header
-          @header ||= elements[0].elements.map do |e|
-            [ e.elements[0].text_value.to_i, e.elements[2].text_value ]
+          unless @header
+            hdr = elements[0].elements
+            last_fields = hdr.pop
+
+            @header = hdr.map do |e|
+              [ e.elements[0].text_value.to_i, e.elements[2].text_value ]
+            end
+
+            last_fields.elements.inject(@header) do |h, e|
+              h << [ e.elements[0].text_value.to_i, e.elements[2].text_value ]
+            end
           end
+
+          @header
         end
 
-        def fields
+        def body
           @fields ||= elements[1].elements.map do |e|
             [ e.elements[0].text_value.to_i, e.elements[2].text_value ]
           end
@@ -26,7 +37,23 @@ module Fix
     end
 
     rule header
-      begin_string body_length msg_type sender_comp_id target_comp_id msg_seq_num sending_time
+      begin_string body_length msg_type field 4..4
+    end
+
+    rule body
+      heartbeat
+    end
+
+    rule trailer
+      checksum_tag equal value soh
+    end
+
+    rule heartbeat
+      test_req_id 1..1
+    end
+
+    rule test_req_id
+      "112" equal value soh
     end
 
     rule begin_string
@@ -59,10 +86,6 @@ module Fix
 
     rule field
       tag equal value soh
-    end
-
-    rule trailer
-      checksum_tag equal value soh
     end
 
     rule tag

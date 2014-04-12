@@ -1,4 +1,6 @@
 require 'simplecov'
+require 'pry'
+
 require(File.expand_path('../../lib/fix-protocol', __FILE__))
 
 SimpleCov.start

@@ -36,7 +36,6 @@ module Fix
     def initialize(ast, str)
       @header   = ast.header
       @body     = ast.body
-      @checksum = ast.checksum
       @raw      = str
 
       parse_header

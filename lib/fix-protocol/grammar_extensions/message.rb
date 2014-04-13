@@ -45,9 +45,9 @@ module Fix
       end
 
       #
-      # Returns the FIX message type as an integer
+      # Returns the FIX message type code
       #
-      # @return <Fixnum> The message type code
+      # @return <String> The message type code
       #
       def msg_type
         header.find { |f| f[0] == 35 }[1]

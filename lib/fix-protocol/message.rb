@@ -20,13 +20,25 @@ module Fix
     attr_accessor :raw, :header, :body, :checksum, :errors, :version, :body_length,
       :sender_comp_id, :target_comp_id, :msg_seq_num, :sending_time, :checksum
 
-    def initialize(ast, str)
-      @header   = ast.header
-      @body     = ast.body
-      @raw      = str
+    #
+    # Instantiates a +Fix::Message+ instance from an AST and the raw form
+    # of a FIX message
+    #
+    # @param ast [Fix::GrammarExtensions::Message] The parsed AST
+    # @param str [String] The raw message
+    # @return [Fix::Message] A message instance
+    #
+    def self.from_ast(ast, str)
+      msg = new
 
-      parse_header
-      validate
+      msg.header   = ast.header
+      msg.body     = ast.body
+      msg.raw      = str
+
+      msg.parse_header
+      msg.validate
+
+      msg
     end
 
     #
@@ -40,7 +52,7 @@ module Fix
         msg_klass = MessageClassMapping.get(ast.msg_type)
         
         if msg_klass
-          msg = msg_klass.new(ast, str)
+          msg = msg_klass.from_ast(ast, str)
           (msg.errors.empty? && msg) || ParseFailure.new(msg.errors)
         else
           ParseFailure.new("Unknown message type: #{ast.msg_type}")
@@ -73,10 +85,10 @@ module Fix
         self.errors = []
 
         errors << "Unsupported version: #{version}"               unless FIX_VERSIONS.include?(version)
-        errors << "Incorrect body length"                         unless Message.verify_body_length(raw)
-        errors << "Incorrect sequence number: #{header_tag(34)}"  unless msg_seq_num > 0
+        errors << "Incorrect body length"                         unless raw.nil? || Message.verify_body_length(raw)
+        errors << "Incorrect sequence number: #{header_tag(34)}"  unless msg_seq_num && msg_seq_num > 0
         errors << "Incorrect sending time: #{header_tag(52)}"     unless sending_time
-        errors << "Incorrect checksum"                            unless Message.verify_checksum(raw)
+        errors << "Incorrect checksum"                            unless raw.nil? || Message.verify_checksum(raw)
       end
     end
 
@@ -87,7 +99,7 @@ module Fix
     # @return [Boolean] Whether the checksum is correct
     #
     def self.verify_checksum(str)
-      chk = str.match(/10=([^\x01]+)\x01\Z/)[1]
+      chk = (str && str.match(/10=([^\x01]+)\x01\Z/)[1])
 
       if chk && chk.length == 3
         sub = str.gsub(/10=[^\x01]+\x01\Z/, '')
@@ -102,7 +114,7 @@ module Fix
     # @return [Boolean] Whether the body length is 
     #
     def self.verify_body_length(str)
-      if m = str.match(/\A8=[^\x01]+\x019=([^\x01]+)\x01(.*)10=[0-9]{3}\x01\Z/)
+      if str && (m = str.match(/\A8=[^\x01]+\x019=([^\x01]+)\x01(.*)10=[0-9]{3}\x01\Z/))
         expected  = m[1].to_i
         actual    = m[2].length
         expected  == actual
@@ -132,13 +144,15 @@ module Fix
     # @param position [Fixnum] The position at which the field is supposed to be located 
     #
     def get_tag_value(fields, tag, position = nil)
-      if position
-        fields[position] && 
-          (fields[position][0] == tag) && 
-          fields[position][1]
-      else
-        fld = fields.find { |f| f[0] == tag }
-        fld && fld[1]
+      if fields.is_a?(Enumerable)
+        if position
+          fields[position] && 
+            (fields[position][0] == tag) && 
+            fields[position][1]
+        else
+          fld = fields.find { |f| f[0] == tag }
+          fld && fld[1]
+        end
       end
     end
 
@@ -169,15 +183,15 @@ module Fix
     end
 
     #
-    # Parses a FIX-formatted timestamp into a DateTime instance, milliseconds are discarded
+    # Parses a FIX-formatted timestamp into a Time instance, milliseconds are discarded
     #
     # @param str [String] A FIX-formatted timestamp
-    # @return [DateTime] An UTC date and time
+    # @return [Time] An UTC date and time
     #
     def parse_timestamp(str)
       if m = str.match(/\A([0-9]{4})([0-9]{2})([0-9]{2})-([0-9]{2}):([0-9]{2}):([0-9]{2})(.[0-9]{3})?\Z/)
         elts = m.to_a.map(&:to_i)
-        DateTime.new(elts[1], elts[2], elts[3], elts[4], elts[5], elts[6])
+        Time.new(elts[1], elts[2], elts[3], elts[4], elts[5], elts[6], 0)
       end
     end
 
@@ -188,7 +202,7 @@ module Fix
     # @return [String] A FIX-formatted timestamp
     #
     def dump_timestamp(dt)
-      dt.strftime('%Y%m%d-%H:%M:%S')
+      dt.utc.strftime('%Y%m%d-%H:%M:%S')
     end
 
     #

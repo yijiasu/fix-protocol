@@ -1,9 +1,17 @@
 module Fix
 
   #
-  # Represents a failure to parse a message
+  # Represents a failure to parse a message, the +errors+ collection
+  # should contain the specific error messages
   #
   class ParseFailure < Array
+
+    attr_accessor :errors
+
+    def initialize(errs = nil)
+      @errors = [errs].flatten.compact
+    end
+
   end
 
 end

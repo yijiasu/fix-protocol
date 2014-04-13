@@ -50,7 +50,7 @@ module Fix
       # @return <Fixnum> The message type code
       #
       def msg_type
-        header.find { |f| f[0] == 35 }[1].to_i
+        header.find { |f| f[0] == 35 }[1]
       end
     end
   end

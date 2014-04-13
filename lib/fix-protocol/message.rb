@@ -1,5 +1,8 @@
+require 'polyglot'
+require 'treetop'
+
+require 'fix-protocol/grammar'
 require 'fix-protocol/message_class_mapping'
-require 'fix-protocol/parser'
 require 'fix-protocol/parse_failure'
 
 module Fix
@@ -14,7 +17,17 @@ module Fix
     #
     FIX_VERSIONS = %w{ 4.1 4.2 4.4 }.map { |v| "FIX.#{v}" }
 
-    attr_accessor :raw, :header, :body, :checksum, :version, :body_length, :sender_comp_id, :target_comp_id, :msg_seq_num, :sending_time, :checksum
+    attr_accessor :raw, :header, :body, :checksum, :errors, :version, :body_length,
+      :sender_comp_id, :target_comp_id, :msg_seq_num, :sending_time, :checksum
+
+    def initialize(ast, str)
+      @header   = ast.header
+      @body     = ast.body
+      @raw      = str
+
+      parse_header
+      validate
+    end
 
     #
     # Parses a string into a Fix::Message instance
@@ -23,24 +36,48 @@ module Fix
     # @return [Fix::Message] A +Fix::Message+ instance, or a +Fix::ParseFailure+ in case of failure
     #
     def self.parse(str)
-      ast = Parser.parse(str)
-
-      if ast
+      if ast = FixParser.new.parse(str)
         msg_klass = MessageClassMapping.get(ast.msg_type)
-        msg_klass.new(ast, str)
+        
+        if msg_klass
+          msg = msg_klass.new(ast, str)
+          (msg.errors.empty? && msg) || ParseFailure.new(msg.errors)
+        else
+          ParseFailure.new("Unknown message type: #{ast.msg_type}")
+        end
       else
-        ParseFailure.new
+        ParseFailure.new("Failed to parse message string")
       end
     end
 
-    def initialize(ast, str)
-      @header   = ast.header
-      @body     = ast.body
-      @raw      = str
+    #
+    # Indicates whether the message successfully passed validation
+    #
+    # @param force [Boolean] Whether to run the validation logic even if the +errors+ collection is not empty
+    # @return [Boolean] Whether the message is semantically valid
+    #
+    def valid?(force = false)
+      (errors.nil? || force) && validate(true)
+      errors.empty?
+    end 
 
-      parse_header
-      Message.verify_body_length(str)
-      Message.verify_checksum(str)
+    #
+    # Validates the message semantics and populates the +errors+ collection accordingly,
+    # validation is performed only if the +errors+ collection 
+    # is +nil+ or if the +force+ parameter is true
+    #
+    # @param force [Boolean] Whether to run the validation logic even if the +errors+ collection is not empty
+    #
+    def validate(force = false)
+      if force or errors.nil?
+        self.errors = []
+
+        errors << "Unsupported version: #{version}"               unless FIX_VERSIONS.include?(version)
+        errors << "Incorrect body length"                         unless Message.verify_body_length(raw)
+        errors << "Incorrect sequence number: #{header_tag(34)}"  unless msg_seq_num > 0
+        errors << "Incorrect sending time: #{header_tag(52)}"     unless sending_time
+        errors << "Incorrect checksum"                            unless Message.verify_checksum(raw)
+      end
     end
 
     #
@@ -79,9 +116,9 @@ module Fix
       @version        = header_tag(8, 0)
       @body_length    = header_tag(9, 1).to_i
       @sender_comp_id = header_tag(49)
-      @sender_comp_id = header_tag(56)
-      @msg_seq_num    = header_tag(34)
-      @sending_time   = header_tag(52)
+      @target_comp_id = header_tag(56)
+      @msg_seq_num    = header_tag(34).to_i
+      @sending_time   = parse_timestamp(header_tag(52))
     end
 
     #
@@ -129,6 +166,60 @@ module Fix
     #
     def body_tag(tag, position = nil)
       get_tag_value(body, tag, position)
+    end
+
+    #
+    # Parses a FIX-formatted timestamp into a DateTime instance, milliseconds are discarded
+    #
+    # @param str [String] A FIX-formatted timestamp
+    # @return [DateTime] An UTC date and time
+    #
+    def parse_timestamp(str)
+      if m = str.match(/\A([0-9]{4})([0-9]{2})([0-9]{2})-([0-9]{2}):([0-9]{2}):([0-9]{2})(.[0-9]{3})?\Z/)
+        elts = m.to_a.map(&:to_i)
+        DateTime.new(elts[1], elts[2], elts[3], elts[4], elts[5], elts[6])
+      end
+    end
+
+    #
+    # Outputs a DateTime object as a FIX-formatted timestamp
+    #
+    # @param dt [DateTime] An UTC date and time
+    # @return [String] A FIX-formatted timestamp
+    #
+    def dump_timestamp(dt)
+      dt.strftime('%Y%m%d-%H:%M:%S')
+    end
+
+    #
+    # Serializes an instance as a FIX message string
+    #
+    # @return [String] The FIX message string
+    #
+    def dump
+      part_2  = "35=#{msg_type}\x0149=#{sender_comp_id}\x0156=#{target_comp_id}\x0134=#{msg_seq_num}\x0152=#{dump_timestamp(sending_time)}\x01#{dump_body}"
+      part_1  = "8=#{version}\x019=#{part_2.length}\x01"
+      chk     = '%03d' % ((part_1 + part_2).bytes.inject(&:+) % 256)
+
+      "#{part_1}#{part_2}10=#{chk}\x01"
+    end
+
+    #
+    # Returns the message body as a string
+    #
+    # @return [String] The body fields as a partial FIX message string
+    #
+    def dump_body
+      body.map { |f| "#{f[0]}=#{f[1]}\x01" }.join
+    end
+
+    #
+    # Returns the message type for this class
+    #
+    # @return [String] The message type for this message class
+    #
+    def msg_type
+      MessageClassMapping.reverse_get(self.class)
     end
 
   end

@@ -9,7 +9,7 @@ module Fix
     
     # The actual code <-> class mapping
     MAPPING = {
-      0 => :heartbeat
+      '0' => :heartbeat
     }
 
     #
@@ -19,7 +19,18 @@ module Fix
     # @return [Class] The FIX message class
     #
     def self.get(msg_type)
-      Messages.const_get(camelcase(MAPPING[msg_type]))
+      Messages.const_get(camelcase(MAPPING[msg_type])) if MAPPING.has_key?(msg_type)
+    end
+
+    #
+    # Returns the message code associated to a message class
+    #
+    # @param msg_type [Integer] The FIX message type code
+    # @return [Class] The FIX message class
+    #
+    def self.reverse_get(klass)
+      key = klass.name.split('::').last.gsub(/([a-z\d])([A-Z])/,'\1_\2').downcase.to_sym
+      MAPPING.find { |p| p[1] == key }[0]
     end
 
     #

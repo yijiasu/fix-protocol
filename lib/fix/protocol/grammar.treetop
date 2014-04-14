@@ -1,4 +1,4 @@
-require 'fix-protocol/grammar_extensions/message'
+require 'fix/protocol/grammar_extensions/message'
 
 module Fix
   grammar Fix

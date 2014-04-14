@@ -2,7 +2,7 @@
 lib = File.expand_path('../lib/', __FILE__)
 $:.unshift lib unless $:.include?(lib)
 
-require 'fix-protocol/version'
+require 'fix/protocol/version'
 
 Gem::Specification.new do |s|
   s.name        = 'fix-protocol'

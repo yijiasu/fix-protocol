@@ -21,6 +21,10 @@ module Fix
       attr_accessor :raw, :header, :body, :checksum, :errors, :version, :body_length,
         :sender_comp_id, :target_comp_id, :msg_seq_num, :sending_time, :checksum
 
+      def initialize
+        @body = []
+      end
+
       #
       # Instantiates a +Fix::Protocol::Message+ instance from an AST and the raw form
       # of a FIX message
@@ -90,6 +94,12 @@ module Fix
           errors << "Incorrect sequence number: #{header_tag(34)}"  unless msg_seq_num && msg_seq_num > 0
           errors << "Incorrect sending time: #{header_tag(52)}"     unless sending_time
           errors << "Incorrect checksum"                            unless raw.nil? || Message.verify_checksum(raw)
+
+          required_fields = self.class.instance_variable_get(:@required_fields)
+          required_fields && required_fields.each do |name|
+            val = send(name)
+            errors << "Missing value for <#{name}> field" if (val.nil? || (val.is_a?(String) && val.chomp == ""))
+          end
         end
       end
 
@@ -235,6 +245,32 @@ module Fix
       #
       def msg_type
         MessageClassMapping.reverse_get(self.class)
+      end
+
+      #
+      # Defines an accessor pair on the message class
+      #
+      def self.has_field(name, opts)
+        define_method name do
+          val = body_tag(opts[:tag], opts[:position])
+          ((opts[:type] == :integer) && val.to_i) || val
+        end
+
+        define_method "#{name}=" do |val|
+          body.delete_if { |i| i[0] == opts[:tag] }
+
+          if opts[:position]
+            body.insert(opts[:position], [opts[:tag], val])
+          else
+            body << [opts[:tag], val]
+          end
+        end
+
+        if opts[:required]
+          @required_fields ||= []
+          @required_fields << name
+          @required_fields.uniq!
+        end
       end
 
     end

@@ -13,6 +13,15 @@ describe 'Fix::Protocol::Messages::Heartbeat' do
     end
   end
 
+  describe '#test_req_id=' do
+    it 'should set a body field' do
+      h = FP::Messages::Heartbeat.new
+      h.test_req_id = 'foo'
+      h.body.should eql([[112, 'foo']])
+      h.test_req_id.should eql('foo')
+    end
+  end
+
   describe '#dump' do
     it 'should return the same message that was parsed' do
       Fix::Protocol.parse(@msg).dump.should eql(@msg)

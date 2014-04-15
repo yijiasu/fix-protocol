@@ -10,7 +10,8 @@ module Fix
 
       # The actual code <-> class mapping
       MAPPING = {
-        '0' => :heartbeat
+        '0' => :heartbeat,
+        'A' => :logon
       }
 
       #

@@ -5,7 +5,7 @@ module Fix
     # Represents a failure to parse a message, the +errors+ collection
     # should contain the specific error messages
     #
-    class ParseFailure < Array
+    class ParseFailure
 
       attr_accessor :errors
 

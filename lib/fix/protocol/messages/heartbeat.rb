@@ -7,12 +7,7 @@ module Fix
       #
       class Heartbeat < Message
 
-        #
-        # Returns the test_req_id property of the heartbeat message
-        #
-        def test_req_id
-          body_tag(112, 0)
-        end
+        has_field :test_req_id, tag: 112, position: 0
 
       end
     end

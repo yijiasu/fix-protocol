@@ -102,7 +102,6 @@ module Fix
         if force or errors.nil?
           self.errors = []
 
-          #binding.pry
           errors << "Unsupported version: #{version}" unless FIX_VERSIONS.include?(version)
           errors << "Incorrect body length"           unless raw.nil? || Message.verify_body_length(raw)
           errors << "Incorrect sequence number"       unless msg_seq_num && msg_seq_num > 0

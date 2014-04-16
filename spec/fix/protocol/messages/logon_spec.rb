@@ -27,4 +27,42 @@ describe 'FP::Messages::Logon' do
     end
   end
 
+  describe '#validate' do
+    before do 
+      @msg = FP::Messages::Logon.new
+      @msg.validate
+    end
+
+    it 'should be invalid' do
+      @msg.valid?.should be_false
+    end
+
+    it 'should report the lack of username' do
+      @msg.errors.should include('Missing value for <username> field')
+    end
+
+    it 'should report the lack of sender_comp_id' do
+      @msg.errors.should include('Missing value for <sender_comp_id> field')
+    end
+
+    it 'should report the lack of target_comp_id' do
+      @msg.errors.should include('Missing value for <target_comp_id> field')
+    end
+  end 
+
+  describe '#dump' do
+    it 'should return nil when the message to dump is invalid' do
+      FP::Messages::Logon.new.dump.should be_nil
+    end
+
+    it 'should generate a proper message string' do
+      msg = FP::Messages::Logon.new
+      msg.sender_comp_id  = 'TEST_SENDER'
+      msg.target_comp_id  = 'TEST_TARGET'
+      msg.username        = 'TEST_USERNAME'
+      msg.msg_seq_num     = 1
+      msg.dump.should be_a_kind_of(String)
+    end
+  end
+
 end

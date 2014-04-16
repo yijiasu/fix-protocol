@@ -7,10 +7,11 @@ module Fix
     #
     class ParseFailure
 
-      attr_accessor :errors
+      attr_accessor :errors, :message
 
-      def initialize(errs = nil)
-        @errors = [errs].flatten.compact
+      def initialize(errs, msg = nil)
+        @errors   = [errs].flatten.compact
+        @message  = msg
       end
 
     end

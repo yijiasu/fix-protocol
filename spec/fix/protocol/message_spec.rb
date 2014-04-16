@@ -43,17 +43,17 @@ describe Fix::Protocol::Message do
     end
 
     it 'should return a failure when the sending_time is incorrect' do
-      msg = "8=FOO.4.2\u00019=73\u000135=0\u000149=BRKR\u000156=INVMGR\u000134=235\u000152=19980604-07:XX:28\u0001112= <additionnal length> 19980604-07:58:28\u000110=235\u0001"
+      msg = "8=FOO.4.2\u00019=73\u000135=0\u000149=BRKR\u000156=INVMGR\u000134=235\u000152=19980604-07:XX:28\u0001112=19980604-07:XX:28\u000110=235\u0001"
       failure = Fix::Protocol.parse(msg)
       failure.should be_a_kind_of(Fix::Protocol::ParseFailure)
-      failure.errors.should include("Incorrect sending time: 19980604-07:XX:28")
+      failure.errors.should include("Incorrect sending time")
     end
 
     it 'should return a failure when the msg_seq_num is incorrect' do
       msg = "8=FOO.4.2\u00019=73\u000135=0\u000149=BRKR\u000156=INVMGR\u000134=0\u000152=19980604-07:58:28\u0001112= <additionnal length> 19980604-07:58:28\u000110=235\u0001"
       failure = Fix::Protocol.parse(msg)
       failure.should be_a_kind_of(Fix::Protocol::ParseFailure)
-      failure.errors.should include("Incorrect sequence number: 0")
+      failure.errors.should include("Incorrect sequence number")
     end
 
     it 'should parse a message to its correct class' do
@@ -86,21 +86,35 @@ describe Fix::Protocol::Message do
       @parsed = Fix::Protocol::Message.parse(@heartbeat)
     end
 
-    describe '#header_tag' do
+    describe '#sender_comp_id' do
       it 'should return a value if the tag is present' do
-        @parsed.header_tag(49).should eq('BRKR')
+        @parsed.sender_comp_id.should eq('BRKR')
       end
+    end
 
+    describe '#sending_time' do
+      it 'should set the default value if relevant' do
+        FP::Messages::Heartbeat.new.sending_time.should be_a_kind_of(Time)
+      end
+    end
+
+    describe '#version' do
+      it 'should return the default value if relevant' do
+        FP::Messages::Heartbeat.new.version.should eql('FIX.4.4')
+      end
+    end
+
+    describe '#get_tag_value' do
       it 'should return nil if no tag is found' do
-        @parsed.header_tag(666).should be_nil
+        @parsed.get_tag_value(:header, 666).should be_nil
       end
 
       it 'should return nil if the tag exists but is not found at the correct position' do
-        @parsed.header_tag(49, 10).should be_nil
+        @parsed.get_tag_value(:header, 49, { position: 10 }).should be_nil
       end
 
       it 'should return the value if the tag is found at the correct position' do
-        @parsed.header_tag(49, 3).should eq('BRKR')
+        @parsed.get_tag_value(:header, 49, { position: 3 }).should eq('BRKR')
       end
     end
 

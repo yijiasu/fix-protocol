@@ -63,7 +63,7 @@ describe Fix::Protocol::Message do
 
   describe '.verify_checksum' do
     it 'should approve of a valid checksum' do
-      Fix::Protocol::Message.verify_checksum(@heartbeat).should be_true
+      Fix::Protocol::Message.verify_checksum(@heartbeat).should be_truthy
     end
 
     it 'should disapprove of an invalid checksum' do

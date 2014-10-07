@@ -67,17 +67,17 @@ describe Fix::Protocol::Message do
     end
 
     it 'should disapprove of an invalid checksum' do
-      Fix::Protocol::Message.verify_checksum("foo" + @heartbeat).should be_false
+      Fix::Protocol::Message.verify_checksum("foo" + @heartbeat).should be_falsey
     end
   end
 
   describe '.verify_body_length' do
     it 'should approve of a valid body length' do
-      Fix::Protocol::Message.verify_body_length(@heartbeat).should be_true
+      Fix::Protocol::Message.verify_body_length(@heartbeat).should be_truthy
     end
 
     it 'should disapprove of an invalid body length' do
-      Fix::Protocol::Message.verify_body_length("foo" + @heartbeat).should be_false
+      Fix::Protocol::Message.verify_body_length("foo" + @heartbeat).should be_falsey
     end
   end
 
@@ -126,12 +126,12 @@ describe Fix::Protocol::Message do
 
     describe '#valid?' do
       it 'should not revalidate if not necessary' do
-        @parsed.should_receive(:validate).never
+        expect(@parsed).to receive(:validate).never
         @parsed.valid?
       end
 
       it 'should revalidate if required' do
-        @parsed.should_receive(:validate).once.with(true)
+        expect(@parsed).to receive(:validate).once.with(true)
         @parsed.valid?(true)
       end
     end

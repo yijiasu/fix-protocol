@@ -34,7 +34,7 @@ describe 'FP::Messages::Logon' do
     end
 
     it 'should be invalid' do
-      @msg.valid?.should be_false
+      @msg.valid?.should be_falsey
     end
 
     it 'should report the lack of username' do

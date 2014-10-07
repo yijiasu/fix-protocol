@@ -11,7 +11,8 @@ module Fix
       # The actual code <-> class mapping
       MAPPING = {
         '0' => :heartbeat,
-        'A' => :logon
+        'A' => :logon,
+        '1' => :test_request
       }
 
       #

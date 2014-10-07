@@ -43,7 +43,7 @@ module Fix
       # @return [Symbol] A camelcased class name
       #
       def self.camelcase(s)
-        s.to_s.split(' ').map(&:capitalize).join.to_sym
+        s.to_s.split(' ').map { |str| str.split('_') }.flatten.map(&:capitalize).join.to_sym
       end
 
       #

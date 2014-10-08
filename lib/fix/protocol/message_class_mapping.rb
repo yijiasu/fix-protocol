@@ -12,7 +12,9 @@ module Fix
       MAPPING = {
         '0' => :heartbeat,
         'A' => :logon,
-        '1' => :test_request
+        '1' => :test_request,
+        '3' => :reject,
+        '5' => :logout
       }
 
       #

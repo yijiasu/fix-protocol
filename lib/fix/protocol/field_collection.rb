@@ -59,19 +59,21 @@ module Fix
         position  = opts[:position]
         type      = opts[:type]
 
-        fields.delete_if { |i| i[0] == tag }
+        fields.delete_if do |i| 
+          i[0] == tag
+        end
 
         str_val = type ? send(:"dump_#{type}", val) : val
 
         if position
           fields.insert(position, [tag, str_val])
+          fields.compact!
         else
           fields << [tag, str_val]
         end
 
         val
       end
-
 
       #
       # Defines class-level helpers

@@ -13,8 +13,9 @@ module Fix
         '0' => :heartbeat,
         'A' => :logon,
         '1' => :test_request,
+        '2' => :resend_request,
         '3' => :reject,
-        '5' => :logout
+        '5' => :logout,
       }
 
       #

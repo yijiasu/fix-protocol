@@ -16,7 +16,7 @@ module Fix
     end
 
     rule body
-      field+
+      field*
     end
 
     rule trailer
@@ -56,7 +56,7 @@ module Fix
     end
 
     rule tag
-      !"10=" [1-9] [0-9]+
+      !"10=" [1-9] [0-9]*
     end
 
     rule checksum_tag

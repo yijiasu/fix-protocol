@@ -14,6 +14,8 @@ module Fix
 
 has_field :md_req_id, tag: 262, required: true
 has_field :subscription_request_type, tag: 263, required:true, type: :integer
+has_field :market_depth, tag: 264, required: true, type: :integer
+has_field :md_update_type, tag: 265, required: not_really:
 
         #
         # Validates the correctness of a FIX logon message

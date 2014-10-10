@@ -16,6 +16,7 @@ module Fix
         '2' => :resend_request,
         '3' => :reject,
         '5' => :logout,
+        'V' => :market_data_request
       }
 
       #

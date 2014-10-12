@@ -120,7 +120,7 @@ module Fix
       #
       # @return [Array<Symbol>] The required fields names
       #
-      def required_fields
+      def reuired_fields
         [self.class, Message].inject([]) do |flds, klass|
           flds += klass.instance_variable_get(:@required_fields) || []
         end.uniq
@@ -176,8 +176,9 @@ module Fix
       # @return [String] The body fields as a partial FIX message string
       #
       def dump_body
-        body.map { |f| "#{f[0]}=#{f[1]}\x01" }.join
+        body.map { |f| "#{f[0]}=#{f[1]}\x01" }.join + groups.map { |cntr, grp| "#{cntr}=#{grp.count}\x01" + grp.map { |f| "#{f[0]}=#{f[1]}\x01" }.join }.join
       end
+
 
       #
       # Returns the message type for this class

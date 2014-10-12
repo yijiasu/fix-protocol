@@ -75,6 +75,10 @@ module Fix
         val
       end
 
+      def groups
+        @groups ||= {}
+      end
+
       #
       # Defines class-level helpers
       #
@@ -100,7 +104,14 @@ module Fix
           end
 
           define_method "#{name}=" do |val|
-            set_tag_value(part, opts[:tag], val, { position: opts[:position], type: opts[:type] })
+            if opts[:mapping] && opts[:mapping].is_a?(Hash)
+              v = opts[:mapping][val] || raise("Incorrect value <#{val}> for attribute <#{name}>")
+            else
+              v = val
+            end
+
+           
+            set_tag_value(part, opts[:tag], v, { position: opts[:position], type: opts[:type] })
           end
 
           if opts[:required]
@@ -109,8 +120,18 @@ module Fix
             @required_fields.uniq!
           end
         end
-      end
 
+        def has_repeating_group(name, opts = {})
+          define_method name do 
+            groups[opts[:counter]] ||= []
+          end
+
+          define_method "#{name}=" do |val|
+            groups[opts[:counter]] = val
+          end
+        end
+
+      end
     end
   end
 end

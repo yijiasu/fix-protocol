@@ -6,7 +6,7 @@ describe 'Fix::Protocol::MessageClassMapping' do
 
   describe '.get' do
     it 'should return the correct mapping for the 0 message type' do
-      Fix::Protocol::MessageClassMapping.get('0').should be(Fix::Protocol::Messages::Heartbeat)
+      expect(Fix::Protocol::MessageClassMapping.get('0')).to be(Fix::Protocol::Messages::Heartbeat)
     end
   end
 

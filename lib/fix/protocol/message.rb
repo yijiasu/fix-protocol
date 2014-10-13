@@ -120,7 +120,7 @@ module Fix
       #
       # @return [Array<Symbol>] The required fields names
       #
-      def reuired_fields
+      def required_fields
         [self.class, Message].inject([]) do |flds, klass|
           flds += klass.instance_variable_get(:@required_fields) || []
         end.uniq

@@ -12,6 +12,11 @@ module Fix
         base.extend(ClassMethods)
       end
 
+      def initialize
+        super
+        associated_groups.each { |g| groups[g] = [] }
+      end
+
       #
       # Returns the first value of a field in the given fields array, 
       # if the +position+ is specified then it will be enforced.
@@ -110,7 +115,7 @@ module Fix
               v = val
             end
 
-           
+
             set_tag_value(part, opts[:tag], v, { position: opts[:position], type: opts[:type] })
           end
 
@@ -122,13 +127,62 @@ module Fix
         end
 
         def has_repeating_group(name, opts = {})
+          associated_groups[opts[:counter]] = {
+            name: name,
+            opts: opts
+          }
+
+          mapping = associated_groups[opts[:counter]][:opts][:mapping]
+          if mapping
+
+            mapping = mapping.inject({}) do |h,i| 
+              h[i[0]] = i[1].to_s
+              h
+            end
+
+            associated_groups[opts[:counter]][:opts][:mapping] = mapping
+          end
+
           define_method name do 
             groups[opts[:counter]] ||= []
+
+            if opts[:mapping]
+              groups[opts[:counter]].map do |i|
+                mapped = opts[:mapping].find { |k,v| v == i }[0]
+                mapped || i
+              end
+            else
+              groups[opts[:counter]]
+            end
           end
 
           define_method "#{name}=" do |val|
-            groups[opts[:counter]] = val
+            if opts[:mapping]
+              groups[opts[:counter]] = [val].flatten.map do |i|
+                opts[:mapping][i] || i
+              end
+            else
+              groups[:opts[:mapping]] = [val].flatten
+            end
           end
+
+          define_method "#{name}<<" do |val|
+            require 'pry'
+            binding.pry
+            send("#{name}=", [send(name), val])
+          end
+
+          define_method "raw_#{name}" do
+            groups[opts[:counter]]
+          end
+
+          define_method "raw_#{name}=" do |val|
+            groups[opts[:counter]] = [val].flatten
+          end
+        end
+
+        def associated_groups
+          @groups ||= {}
         end
 
       end

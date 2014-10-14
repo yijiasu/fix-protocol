@@ -43,29 +43,8 @@ module Fix
         has_field :market_depth,              tag: 264, required: true, type: :integer, mapping: MKT_DPTH_TYPES
         has_field :md_update_type,            tag: 265, required: true, type: :integer, mapping: UPDATE_TYPES
 
-        has_repeating_group :md_entry_types, 
-          counter:  267, 
-          head:     269 
-
-        has_repeating_group :instruments,
-          counter:  146,
-          head:     55
-
-        def add_md_entry_type(et)
-          [et].flatten.each { |e| self.md_entry_types << [269, MD_ENTRY_TYPES[e]] }
-        end
-
-        def add_instrument(ins)
-          [ins].flatten.each { |i| self.instruments << [55, i] }
-        end
-
-        def get_md_entry_types
-          body.map { |f| ((f[0] == 269) || nil) && f[1] }.compact
-        end
-
-        def get_instruments
-          body.map { |f| ((f[0] == 55) || nil) && f[1] }.compact
-        end
+        has_repeating_group :md_entry_types,  counter:  267, head: 269, mapping: MD_ENTRY_TYPES
+        has_repeating_group :instruments,     counter:  146, head: 55
 
       end
     end

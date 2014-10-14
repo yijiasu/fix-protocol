@@ -71,7 +71,17 @@ module Fix
 
           if msg_klass
             msg = msg_klass.from_ast(ast, str)
-            (msg.errors.empty? && msg) || ParseFailure.new(msg.errors, msg)
+
+            if msg.errors.empty?
+              msg.class.associated_groups.each do |ctr, grp|
+                values = msg.body.select { |f| f[0] == grp[:opts][:head] }.compact.map { |f| f[1] }
+                msg.send("raw_#{grp[:name]}=", values)
+              end 
+
+              msg
+            else
+              ParseFailure.new(msg.errors, msg)
+            end
           else
             ParseFailure.new("Unknown message type: #{ast.msg_type}")
           end

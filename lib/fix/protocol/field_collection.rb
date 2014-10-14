@@ -148,9 +148,10 @@ module Fix
 
             if opts[:mapping]
               groups[opts[:counter]].map do |i|
-                mapped = opts[:mapping].find { |k,v| v == i }[0]
+                m = opts[:mapping].find { |k,v| v == i.to_s }
+                mapped = m && m[0]
                 mapped || i
-              end
+              end.freeze
             else
               groups[opts[:counter]]
             end
@@ -159,17 +160,11 @@ module Fix
           define_method "#{name}=" do |val|
             if opts[:mapping]
               groups[opts[:counter]] = [val].flatten.map do |i|
-                opts[:mapping][i] || i
+                opts[:mapping][i] || opts[:mapping][i.to_s] || i.to_s
               end
             else
               groups[:opts[:mapping]] = [val].flatten
             end
-          end
-
-          define_method "#{name}<<" do |val|
-            require 'pry'
-            binding.pry
-            send("#{name}=", [send(name), val])
           end
 
           define_method "raw_#{name}" do

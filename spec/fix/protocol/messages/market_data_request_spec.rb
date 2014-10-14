@@ -18,10 +18,6 @@ describe 'Fix::Protocol::Messages::MarketDataRequest' do
       msg = Fix::Protocol.parse(@msg)
       expect(msg.md_entry_types.sort).to eql([:bid, :ask, :trade, :open, :vwap, :close].sort)
     end
-
-    it 'should handle an absence of mapping gracefully' do
-      pending
-    end
   end
 
   describe '#raw_md_entry_types' do
@@ -34,15 +30,16 @@ describe 'Fix::Protocol::Messages::MarketDataRequest' do
   describe '#md_entry_types=' do
     it 'should accept symbols and map them to their numerical values' do
       msg = FP::Messages::MarketDataRequest.new
-      msg.md_entry_types = [:bid, :ask]
-      msg.md_entry_types<<(:close)
-      msg.md_entry_types<<(5)
-      expect(msg.raw_md_entry_types).to eql([])
-      expect(msg.md_entry_types).to eql([])
+      msg.md_entry_types = [:bid, :ask, :close, 6]
+      expect(msg.md_entry_types).to eql([:bid, :ask, :close, :settlement])
+      expect(msg.raw_md_entry_types).to eql(%w{ 0 1 5 6 })
     end
 
     it 'should handle an absence of mapping gracefully' do
-      pending
+      msg = FP::Messages::MarketDataRequest.new
+      msg.md_entry_types = [:bid, :ask, :close, 42]
+      expect(msg.md_entry_types).to eql([:bid, :ask, :close, '42'])
+      expect(msg.raw_md_entry_types).to eql(%w{ 0 1 5 42 })
     end
   end
 

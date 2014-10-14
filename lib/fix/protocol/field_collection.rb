@@ -14,7 +14,9 @@ module Fix
 
       def initialize
         super
-        associated_groups.each { |g| groups[g] = [] }
+        associated_groups.each do |g| 
+          groups[g] = []
+        end
       end
 
       #

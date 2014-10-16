@@ -165,7 +165,7 @@ module Fix
                 opts[:mapping][i] || opts[:mapping][i.to_s] || i.to_s
               end
             else
-              groups[:opts[:mapping]] = [val].flatten
+              groups[opts[:mapping]] = [val].flatten
             end
           end
 

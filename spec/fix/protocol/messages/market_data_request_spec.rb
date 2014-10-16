@@ -43,6 +43,14 @@ describe 'Fix::Protocol::Messages::MarketDataRequest' do
     end
   end
 
+  describe '#dump' do
+    it 'should return the same message' do
+
+      puts @msg.gsub(/\x01/, '|')
+      puts FP.parse(@msg).dump.gsub(/\x01/, '|')
+      expect(FP.parse(@msg).dump).to eql(@msg)
+    end
+  end
 
 end
 

@@ -5,9 +5,9 @@ module Fix
       #
       # A FIX heartbeat message
       #
-      class Heartbeat < Message
+      class Heartbeat < ::Fix::Protocol::Message
 
-        has_field :test_req_id, tag: 112, position: 0
+        field :test_req_id, tag: 112
 
       end
     end

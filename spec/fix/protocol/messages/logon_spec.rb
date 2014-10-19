@@ -4,7 +4,7 @@ describe 'FP::Messages::Logon' do
 
   context 'a parsed message' do
     before do
-      msg = "8=FIX.4.1\x019=74\x0135=A\x0149=INVMGR\x0156=BRKR\x0134=1\x0152=20000426-12:05:06\x0198=0\x01108=30\x01553=USERNAME\x0110=107\x01"
+      msg = "8=FIX.4.4\x019=74\x0135=A\x0149=INVMGR\x0156=BRKR\x0134=1\x0152=20000426-12:05:06\x0198=0\x01108=30\x01553=USERNAME\x0110=110\x01"
       @parsed = FP.parse(msg)
     end
 
@@ -22,7 +22,8 @@ describe 'FP::Messages::Logon' do
     it 'should set a body field' do
       m = FP::Messages::Logon.new
       m.username = 'john'
-      expect(m.body).to eql([[553, 'john']])
+      expect(m.nodes[3].value).to eql('john')
+      expect(m.nodes[3].tag).to eql(553)
       expect(m.username).to eql('john')
     end
   end
@@ -30,7 +31,6 @@ describe 'FP::Messages::Logon' do
   describe '#validate' do
     before do 
       @msg = FP::Messages::Logon.new
-      @msg.validate
     end
 
     it 'should be invalid' do
@@ -57,10 +57,11 @@ describe 'FP::Messages::Logon' do
 
     it 'should generate a proper message string' do
       msg = FP::Messages::Logon.new
-      msg.sender_comp_id  = 'TEST_SENDER'
-      msg.target_comp_id  = 'TEST_TARGET'
-      msg.username        = 'TEST_USERNAME'
-      msg.msg_seq_num     = 1
+      msg.header.sender_comp_id = 'TEST_SENDER'
+      msg.header.target_comp_id = 'TEST_TARGET'
+      msg.header.msg_seq_num    = 1
+      msg.username              = 'TEST_USERNAME'
+
       expect(msg.dump).to be_a_kind_of(String)
     end
   end

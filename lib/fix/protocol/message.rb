@@ -1,14 +1,9 @@
 require 'polyglot'
 require 'treetop'
 
-require 'fix/protocol/field_collection'
-require 'fix/protocol/grammar'
-require 'fix/protocol/field'
 require 'fix/protocol/message_part'
+require 'fix/protocol/repeating_message_part'
 require 'fix/protocol/message_header'
-require 'fix/protocol/message_class_mapping'
-require 'fix/protocol/parse_failure'
-require 'fix/protocol/type_conversions'
 
 module Fix
   module Protocol
@@ -18,13 +13,25 @@ module Fix
     #
     class Message < MessagePart
 
+      part :header, klass: MessageHeader
 
       def initialize
-
-        nodes << MessageHeader.new
-
+        super
+        header.msg_type = MessageClassMapping.reverse_get(self.class)
       end
 
+      def dump
+        if valid?
+          dumped = super
+          header.body_length = dumped.gsub(/^8=[^\x01]+\x019=[^\x01]+\x01/, '').length
+          dumped = super
+          "#{dumped}10=#{'%03d' % (dumped.bytes.inject(&:+) % 256)}\x01"
+        end
+      end
+
+      def valid?
+        errors.nil? || errors.empty?
+      end
 
     end
   end

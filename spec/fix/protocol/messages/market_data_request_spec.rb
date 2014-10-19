@@ -7,23 +7,23 @@ describe 'Fix::Protocol::Messages::MarketDataRequest' do
   end
 
   describe '#instruments' do
-    it 'should return the correct value' do
-      msg = Fix::Protocol.parse(@msg)
-      expect(msg.instruments).to eql(['EURXBT'])
+    it 'should return the correct instruments value' do
+      msg = FP.parse(@msg)
+      expect(msg.instruments.first.symbol).to eql('EURXBT')
     end
   end
 
   describe '#md_entry_types' do
     it 'should return the correct mapped values' do
       msg = Fix::Protocol.parse(@msg)
-      expect(msg.md_entry_types.sort).to eql([:bid, :ask, :trade, :open, :vwap, :close].sort)
+      expect(msg.md_entry_types.map { |met| met.md_entry_type }.sort).to eql([:bid, :ask, :trade, :open, :vwap, :close].sort)
     end
   end
 
   describe '#raw_md_entry_types' do
     it 'should return the correct raw values' do
       msg = Fix::Protocol.parse(@msg)
-      expect(msg.raw_md_entry_types).to eql(["0", "1", "2", "4", "5", "9"])
+      expect(msg.md_entry_types.map { |met| met.md_entry_type }).to eql(["0", "1", "2", "4", "5", "9"])
     end
   end
 
@@ -45,9 +45,6 @@ describe 'Fix::Protocol::Messages::MarketDataRequest' do
 
   describe '#dump' do
     it 'should return the same message' do
-
-      puts @msg.gsub(/\x01/, '|')
-      puts FP.parse(@msg).dump.gsub(/\x01/, '|')
       expect(FP.parse(@msg).dump).to eql(@msg)
     end
   end

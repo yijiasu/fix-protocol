@@ -17,8 +17,7 @@ describe 'Fix::Protocol::Messages::Heartbeat' do
     it 'should set a body field' do
       h = FP::Messages::Heartbeat.new
       h.test_req_id = 'foo'
-      expect(h.body).to eql([[112, 'foo']])
-      expect(h.test_req_id).to eql('foo')
+      expect(h.nodes[1].value).to eql('foo')
     end
   end
 

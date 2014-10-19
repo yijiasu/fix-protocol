@@ -1,11 +1,18 @@
+require 'fix/protocol/field'
+
 module Fix
   module Protocol
     class MessagePart
 
-      attr_accessor :parse_failure
+      attr_accessor :parse_failure, :name
 
-      def initialize
+      def initialize(opts = {})
+        self.name = opts[:name]
         self.class.structure.each { |node| initialize_node(node) }
+      end
+
+      def self.inherited(klass)
+        klass.send(:instance_variable_set, :@structure, structure.dup)
       end
 
       def dump
@@ -21,10 +28,18 @@ module Fix
             self.parse_failure = node.parse_failure
           end
         end
+
+        left_to_parse
       end
 
       def initialize_node(node)
-        nodes << FP::Field.new(node)
+        if node[:node_type] == :part
+          nodes << node[:klass].new(node)
+        elsif node[:node_type] == :field
+          nodes << FP::Field.new(node)
+        elsif node[:node_type] == :collection
+          nodes << FP::RepeatingMessagePart.new(node)
+        end
       end
 
       def nodes
@@ -41,14 +56,31 @@ module Fix
         instce
       end
 
+      def self.collection(name, opts = {})
+        structure << { node_type: :collection, name: name, counter_tag: opts[:counter_tag], klass: opts[:klass] }
+
+        define_method(name) do
+          node_for_name(name)
+        end
+      end
+
+      def self.part(name, opts = {})
+        structure << { node_type: :part, name: name }.merge(opts)
+
+        define_method(name) do
+          node_for_name(name)
+        end
+      end
+
       def self.field(name, opts)
-        structure << { name: name }.merge(opts)
+        structure << { node_type: :field, name: name }.merge(opts)
 
         # Getter
         define_method(name) do
           node_for_name(name).value
         end
 
+        # Setter
         define_method("#{name}=") do |val|
           node_for_name(name).value = val
         end
@@ -57,6 +89,11 @@ module Fix
       def self.structure
         @structure ||= []
       end
+
+      def errors
+        nodes.map(&:errors).flatten.compact
+      end
+
 
     end
   end

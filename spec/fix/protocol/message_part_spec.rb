@@ -15,7 +15,7 @@ describe FP::MessagePart do
   describe '.field' do
     it 'should add an item in the field structure' do
       FP::MessagePart.field(:test_field, some_option: 'some_value')
-      expect(FP::MessagePart.structure).to eql([{ name: :test_field, some_option: 'some_value' }])
+      expect(FP::MessagePart.structure).to eql([{ node_type: :field, name: :test_field, some_option: 'some_value' }])
     end
 
     it 'should define a working getter' do
@@ -34,19 +34,22 @@ describe FP::MessagePart do
 
   describe '#initialize' do
     it 'should initialize the node tree' do
-      FP::MessagePart.field(:field1, {})
-      FP::MessagePart.field(:field2, {})
 
-      expect_any_instance_of(FP::MessagePart).to receive(:initialize_node).once.with({ name: :field1 }).and_return(nil)
-      expect_any_instance_of(FP::MessagePart).to receive(:initialize_node).once.with({ name: :field2 }).and_return(nil)
-      FP::MessagePart.new
+      class TestClass1 < FP::MessagePart; end;
+      TestClass1.field(:field1, {})
+      TestClass1.field(:field2, {})
+
+      expect_any_instance_of(TestClass1).to receive(:initialize_node).once.with({ node_type: :field, name: :field1 }).and_return(nil)
+      expect_any_instance_of(TestClass1).to receive(:initialize_node).once.with({ node_type: :field, name: :field2 }).and_return(nil)
+      TestClass1.new
     end
   end
 
   describe '#initialize_node' do
     it 'should create an empty field node in the node tree' do
-      FP::MessagePart.field(:some_field, tag: 42, required: true, default: 'life and everything')
-      mp = FP::MessagePart.new
+      class TestClass2 < FP::MessagePart; end;
+      TestClass2.field(:some_field, tag: 42, required: true, default: 'life and everything')
+      mp = TestClass2.new
 
       expect(mp.nodes.count).to         eql(1)
       expect(mp.nodes.first).to         be_an_instance_of(FP::Field)
@@ -58,9 +61,10 @@ describe FP::MessagePart do
 
   describe '#dump' do
     it 'should recursively dump all nodes' do
-      FP::MessagePart.field(:field1, tag: 42, required: true, default: 'foo')
-      FP::MessagePart.field(:field2, tag: 43, required: true, default: 'bar')
-      mp = FP::MessagePart.new
+      class TestClass3 < FP::MessagePart; end;
+      TestClass3.field(:field1, tag: 42, required: true, default: 'foo')
+      TestClass3.field(:field2, tag: 43, required: true, default: 'bar')
+      mp = TestClass3.new
 
       expect(mp.dump).to eql("42=foo\x0143=bar\x01")
     end
@@ -68,9 +72,10 @@ describe FP::MessagePart do
 
   describe '#parse' do
     it 'should parse a string properly' do
-      FP::MessagePart.field(:field1, tag: 42, required: true, default: 'foo')
-      FP::MessagePart.field(:field2, tag: 43, required: true, default: 'bar')
-      mp = FP::MessagePart.new
+      class TestClass4 < FP::MessagePart; end;
+      TestClass4.field(:field1, tag: 42, required: true, default: 'foo')
+      TestClass4.field(:field2, tag: 43, required: true, default: 'bar')
+      mp = TestClass4.new
 
       mp.parse("42=badum\x0143=tsss\x01")
       expect(mp.parse_failure).to be_nil
@@ -80,11 +85,12 @@ describe FP::MessagePart do
   end
 
   describe '.parse' do
-    it 'should parse a string properly' do
-      FP::MessagePart.field(:field1, tag: 42, required: true, default: 'foo')
-      FP::MessagePart.field(:field2, tag: 43, required: true, default: 'bar')
+    it 'should instantiate a message part and parse the passed string' do
+      class TestClass5 < FP::MessagePart; end;
+      TestClass5.field(:field1, tag: 42, required: true, default: 'foo')
+      TestClass5.field(:field2, tag: 43, required: true, default: 'bar')
 
-      mp = FP::MessagePart.parse("42=badum\x0143=tsss\x01")
+      mp = TestClass5.parse("42=badum\x0143=tsss\x01")
       expect(mp.parse_failure).to be_nil
       expect(mp.field1).to eql('badum')
       expect(mp.field2).to eql('tsss')

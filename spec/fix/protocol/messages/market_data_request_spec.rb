@@ -3,7 +3,7 @@ require_relative '../../../spec_helper'
 describe 'Fix::Protocol::Messages::MarketDataRequest' do
 
   before do
-    @msg = "8=FIX.4.4|9=139|35=V|49=DAVID_SND|56=PYMBTCDEV|34=3|52=20141014-11:24:41|262=X|263=1|264=0|265=1|267=6|269=0|269=1|269=2|269=4|269=5|269=9|146=1|55=EURXBT|10=021|".gsub(/\|/, "\x01")
+    @msgx = "8=FIX.4.4|9=139|35=V|49=DAVID_SND|56=PYMBTCDEV|34=3|52=20141014-11:24:41|262=X|263=1|264=0|265=1|267=6|269=0|269=1|269=2|269=4|269=5|269=9|146=1|55=EURXBT|10=021|".gsub(/\|/, "\x01")
   end
 
   describe '#instruments' do

@@ -12,6 +12,11 @@ module Fix
         field :username,            tag: 553, required: true
         field :reset_seq_num_flag,  tag: 141
 
+        #
+        # Returns the logon-specific errors
+        #
+        # @return [Array] The error messages
+        #
         def errors
           e = []
           e << "Encryption is not supported, the transport level should handle it" unless (encrypt_method == 0)

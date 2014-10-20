@@ -20,6 +20,12 @@ module Fix
         header.msg_type = MessageClassMapping.reverse_get(self.class)
       end
 
+      #
+      # Dumps this message as a FIX protocol message, it will automatically
+      # calculate the body length and and checksum
+      #
+      # @return [String] The FIX message
+      #
       def dump
         if valid?
           dumped = super
@@ -29,6 +35,11 @@ module Fix
         end
       end
 
+      #
+      # Whether this instance is ready to be dumped as a valid FIX message
+      #
+      # @return [Boolean] Whether there are errors present for this instance
+      #
       def valid?
         (errors.nil? || errors.empty?) && parse_failure.nil?
       end

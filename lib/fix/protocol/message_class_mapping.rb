@@ -32,8 +32,8 @@ module Fix
       #
       # Returns the message code associated to a message class
       #
-      # @param msg_type [Integer] The FIX message type code
-      # @return [Class] The FIX message class
+      # @param klass [Class] The FIX message class
+      # @return [Integer] The FIX message type code
       #
       def self.reverse_get(klass)
         key = klass.name.split('::').last.gsub(/([a-z\d])([A-Z])/,'\1_\2').downcase.to_sym

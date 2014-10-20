@@ -2,6 +2,10 @@ require 'fix/protocol/message_part'
 
 module Fix
   module Protocol
+
+    #
+    # The standard FIX message header
+    #
     class MessageHeader < MessagePart
 
       field :version,         tag: 8,   required: true,                   default: 'FIX.4.4'
@@ -12,6 +16,11 @@ module Fix
       field :msg_seq_num,     tag: 34,  required: true, type: :integer
       field :sending_time,    tag: 52,  required: true, type: :timestamp, default: proc { Time.now }
 
+      #
+      # Returns the errors relevant to the message header
+      #
+      # @return [Array<String>] The errors on the message header
+      #
       def errors
         if version == 'FIX.4.4'
           super

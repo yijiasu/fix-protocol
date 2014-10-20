@@ -3,21 +3,25 @@ module Fix
     module Messages
 
       #
-      # A FIX resend request message
+      # A FIX resend request message, see http://www.onixs.biz/fix-dictionary/4.4/msgType_2_2.html
       #
       class ResendRequest < Message
 
-        has_field :begin_seq_no,  tag: 7,  required: true, type: :integer
-        has_field :end_seq_no,    tag: 16, required: true, type: :integer, default: 0
+        field :begin_seq_no,  tag: 7,  required: true, type: :integer
+        field :end_seq_no,    tag: 16, required: true, type: :integer, default: 0
 
-        def validate(force = false)
-          super(force)
-          errors << "EndSeqNo must either be 0 (inifinity) or be >= BeginSeqNo" unless (end_seq_no.zero? || (end_seq_no >= begin_seq_no))
+        #
+        # Returns the logon-specific errors
+        #
+        # @return [Array] The error messages
+        #
+        def errors
+          e = []
+          e << "EndSeqNo must either be 0 (inifinity) or be >= BeginSeqNo" unless (end_seq_no.zero? || (end_seq_no >= begin_seq_no))
+          [super, e].flatten
         end
 
       end
     end
   end
 end
-
-

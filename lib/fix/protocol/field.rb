@@ -47,25 +47,24 @@ module Fix
         if obj && type && !mapping
           send("dump_#{type}", obj)
         elsif obj && mapping && mapping.has_key?(obj)
-          m = mapping.find { |k,v| v == obj }
-          m && m[0]
+          mapping[obj]
         else
           obj
         end
       end
 
       def to_type(val)
-        if val && type && val.is_a?(String) && !mapping
+        if val && type && !mapping
           send("parse_#{type}", val)
         elsif val && mapping && mapping.values.map(&:to_s).include?(val)
-          mapping[val]
+          mapping.find { |k,v| v.to_s == val.to_s }[0]
         else
           val
         end
       end
 
       def errors
-        if required && !value
+        if required && !@value
           "Missing value for <#{name}> field"
         end
       end

@@ -84,6 +84,16 @@ module Fix
         define_method("#{name}=") do |val|
           node_for_name(name).value = val
         end
+
+        if opts[:mapping]
+          define_method("raw_#{name}") do
+            node_for_name(name).raw_value
+          end
+
+          define_method("raw_#{name}=") do |val|
+            node_for_name(name).raw_value = val
+          end
+        end
       end
 
       def self.structure

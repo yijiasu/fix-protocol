@@ -30,7 +30,7 @@ module Fix
       end
 
       def valid?
-        errors.nil? || errors.empty?
+        (errors.nil? || errors.empty?) && parse_failure.nil?
       end
 
     end

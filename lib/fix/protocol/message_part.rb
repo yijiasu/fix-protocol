@@ -101,7 +101,7 @@ module Fix
       end
 
       def errors
-        nodes.map(&:errors).flatten.compact
+        [nodes.map(&:errors), nodes.map(&:parse_failure)].flatten.compact
       end
 
 

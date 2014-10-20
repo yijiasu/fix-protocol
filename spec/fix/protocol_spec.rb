@@ -8,5 +8,13 @@ describe Fix::Protocol do
     end
   end
 
+  describe '.parse' do
+    it 'should fail to parse garbage' do
+      parsed = FP.parse('garbage')
+      expect(parsed).to be_a_kind_of(FP::ParseFailure)
+      expect(parsed.errors).to include("Malformed message <garbage>")
+    end
+  end
+
 end
 

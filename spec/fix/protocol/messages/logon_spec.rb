@@ -18,6 +18,15 @@ describe 'FP::Messages::Logon' do
     end
   end
 
+  describe '#parse' do
+    it 'should return a parse failure when a required field is missing' do
+      msg = "8=FIX.4.4\x019=61\x0135=A\x0149=INVMGR\x0156=BRKR\x0134=1\x0152=20000426-12:05:06\x0198=0\x01108=30\x0110=047\x01"
+      parsed = FP.parse(msg)
+      expect(parsed).to be_a(FP::ParseFailure)
+      expect(parsed.errors).to include("Expected <10=047\u0001> to start with a <553=...|> required field")
+    end
+  end
+
   describe '#username' do
     it 'should set a body field' do
       m = FP::Messages::Logon.new

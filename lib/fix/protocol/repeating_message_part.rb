@@ -1,3 +1,4 @@
+require 'forwardable'
 require 'fix/protocol/message_part'
 
 module Fix

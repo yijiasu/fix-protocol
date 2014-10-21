@@ -6,8 +6,17 @@ describe Fix::Protocol::Message do
     @heartbeat = "8=FIX.4.1\u00019=73\u000135=0\u000149=BRKR\u000156=INVMGR\u000134=235\u000152=19980604-07:58:28\u0001112=19980604-07:58:28\u000110=235\u0001"
   end
 
-  describe '.parse' do
+  describe '#msg_seq_num' do
+    it 'should be delegated to the message header' do
+      hb = FP::Messages::Heartbeat.new
+      expect(hb.header).to receive(:msg_seq_num=).once.with(42).and_call_original
+      expect(hb.header).to receive(:msg_seq_num).once.and_call_original
+      hb.msg_seq_num = 42
+      expect(hb.msg_seq_num).to eql(42)
+    end
+  end
 
+  describe '.parse' do
     it 'should return a failure when failing to parse a message' do
       msg = "8=FOO.4.2\u00019=73\u000135=XyZ\u000149=BRKR\u000156=INVMGR\u000134=235\u000152=19980604-07:58:28\u0001112=19980604-07:58:28\u000110=235\u0001"
       failure = Fix::Protocol.parse(msg)

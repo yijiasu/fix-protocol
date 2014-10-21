@@ -11,8 +11,9 @@ Currently it only supports the FIX messages needed for our own use. Additional m
 require 'fix/protocol'
 
 msg = FP::Messages::Logon.new
-msg.header.sender_comp_id = 'MY_ID'
-msg.header.target_comp_id = 'MY_COUNTERPARTY'
+msg.sender_comp_id = 'MY_ID'
+msg.target_comp_id = 'MY_COUNTERPARTY'
+msg.msg_seq_num    = 0
 msg.username = 'MY_USERNAME'
 
 if msg.valid?

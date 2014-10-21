@@ -7,7 +7,7 @@ module Fix
       #
       class Logout < Message
 
-        has_field :text, tag: 58
+        field :text, tag: 58
 
       end
     end

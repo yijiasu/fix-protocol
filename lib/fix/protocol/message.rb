@@ -1,5 +1,6 @@
 require 'polyglot'
 require 'treetop'
+require 'forwardable'
 
 require 'fix/protocol/message_part'
 require 'fix/protocol/repeating_message_part'
@@ -12,6 +13,13 @@ module Fix
     # Represents an instance of a FIX message
     #
     class Message < MessagePart
+
+      extend Forwardable
+      def_delegators :header, 
+        :sender_comp_id, :sender_comp_id=, 
+        :target_comp_id, :target_comp_id=,
+        :msg_seq_num, :msg_seq_num=,
+        :sending_time, :sending_time=
 
       part :header, klass: MessageHeader
 

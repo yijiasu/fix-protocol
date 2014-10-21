@@ -24,7 +24,7 @@ module Fix
       # @return [String] A message fragment terminated by the separator byte
       #
       def dump
-        "#{tag}=#{@value}\x01"
+        @value && "#{tag}=#{@value}\x01"
       end
 
       #

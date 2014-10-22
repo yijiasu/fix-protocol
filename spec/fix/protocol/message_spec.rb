@@ -31,10 +31,10 @@ describe Fix::Protocol::Message do
     end
 
     it 'should return a failure when the message type is incorrect' do
-      msg = "8=FOO.4.2\u00019=73\u000135=X\u000149=BRKR\u000156=INVMGR\u000134=235\u000152=19980604-07:58:28\u0001112=19980604-07:58:28\u000110=235\u0001"
+      msg = "8=FOO.4.2\u00019=73\u000135=ZOULOU\u000149=BRKR\u000156=INVMGR\u000134=235\u000152=19980604-07:58:28\u0001112=19980604-07:58:28\u000110=235\u0001"
       failure = Fix::Protocol.parse(msg)
       expect(failure).to be_a_kind_of(Fix::Protocol::ParseFailure)
-      expect(failure.errors).to include("Unknown message type <X>")
+      expect(failure.errors).to include("Unknown message type <ZOULOU>")
     end
 
     it 'should return a failure when the checksum is incorrect' do

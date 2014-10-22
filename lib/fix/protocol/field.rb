@@ -40,6 +40,8 @@ module Fix
           str.gsub(/^[^\x01]+\x01/, '')
         elsif required
           self.parse_failure = "Expected <#{str}> to start with a <#{tag}=...|> required field"  
+        else
+          str
         end
       end
 

@@ -10,17 +10,26 @@ module Fix
       #
       class MarketDataRequest < Message
 
+        #
+        # The subscription type, see: http://www.onixs.biz/fix-dictionary/4.4/tagNum_263.html
+        #
         SUBSCRIPTION_TYPES = {
           snapshot:     1,
           updates:      2,
           unsubscribe:  3
         }
 
+        #
+        # Whether to return the full book or only the best bid/ask
+        #
         MKT_DPTH_TYPES = {
           full: 0,
           top:  1
         }
 
+        #
+        # Whether to send a full market depth on each update, we'll probably only support the incremental type
+        #
         UPDATE_TYPES = {
           full:         0,
           incremental:  1

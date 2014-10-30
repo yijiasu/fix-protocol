@@ -1,4 +1,5 @@
 require 'fix/protocol/message_part'
+require 'fix/protocol/header_fields'
 
 module Fix
   module Protocol
@@ -8,13 +9,14 @@ module Fix
     #
     class MessageHeader < MessagePart
 
+      extend Forwardable
+      def_delegators :header_fields, :msg_type, :msg_type=, :sender_comp_id, :sender_comp_id=, :target_comp_id, 
+        :target_comp_id=, :msg_seq_num, :msg_seq_num=, :sending_time, :sending_time=
+
       field :version,         tag: 8,   required: true,                   default: 'FIX.4.4'
-      field :body_length,     tag: 9,                                     default: 0
-      field :msg_type,        tag: 35,  required: true
-      field :sender_comp_id,  tag: 49,  required: true
-      field :target_comp_id,  tag: 56,  required: true
-      field :msg_seq_num,     tag: 34,  required: true, type: :integer
-      field :sending_time,    tag: 52,  required: true, type: :timestamp, default: proc { Time.now }
+      field :body_length,     tag: 9
+
+      unordered :header_fields, klass: HeaderFields
 
       #
       # Returns the errors relevant to the message header

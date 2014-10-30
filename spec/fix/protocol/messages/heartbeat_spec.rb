@@ -27,4 +27,11 @@ describe 'Fix::Protocol::Messages::Heartbeat' do
     end 
   end
 
+  describe '.parse' do
+    it 'should work fine with an unordered header' do
+      msg = "8=FIX.4.4\x019=74\x0135=0\x0156=BBB\x0149=AAAA\x0134=2\x0152=20080420-15:16:13\x01112=L.0001.0002.0003.151613\x0110=034\x01"
+      expect(Fix::Protocol.parse(msg).dump).to eql(@msg)
+    end
+  end
+
 end

@@ -39,7 +39,6 @@ module Fix
       # @return [String] The string part that wasn't consumed during the parsing
       #
       def parse(str)
-        puts str
         left_to_parse = str
 
         nodes.each do |node|

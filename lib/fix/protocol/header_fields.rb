@@ -1,6 +1,9 @@
 module Fix
   module Protocol
 
+    #
+    # The fields in the header for which the order is not enforced
+    #
     class HeaderFields < UnorderedPart
 
       field :msg_type,        tag: 35,  required: true

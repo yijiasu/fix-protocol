@@ -23,7 +23,6 @@ describe 'Fix::Protocol::Messages::Heartbeat' do
 
   describe '#dump' do
     it 'should return the same message that was parsed' do
-      binding.pry
       expect(Fix::Protocol.parse(@msg).dump).to eql(@msg)
     end 
   end

@@ -2,6 +2,7 @@ require 'polyglot'
 require 'treetop'
 
 require 'fix/protocol/message_part'
+require 'fix/protocol/unordered_part'
 require 'fix/protocol/repeating_message_part'
 require 'fix/protocol/message_header'
 

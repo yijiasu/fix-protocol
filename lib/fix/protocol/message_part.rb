@@ -39,6 +39,7 @@ module Fix
       # @return [String] The string part that wasn't consumed during the parsing
       #
       def parse(str)
+        puts str
         left_to_parse = str
 
         nodes.each do |node|
@@ -62,6 +63,8 @@ module Fix
           nodes << FP::Field.new(node)
         elsif node[:node_type] == :collection
           nodes << FP::RepeatingMessagePart.new(node)
+        elsif node[:node_type] == :unordered
+          nodes << node[:klass].new(node)
         end
       end
 
@@ -120,6 +123,17 @@ module Fix
           node_for_name(name)
         end
       end
+
+      #
+      # Defines an unordered fields collection
+      #
+      # @param name [String] The part name, this will be the name of a dynamically created accessor on the message part
+      # @param opts [Hash] Options hash
+      #
+      def self.unordered(name, opts = {})
+        part(name, opts.merge({ node_type: :unordered }))
+      end
+
 
       #
       # Defines a field as part of the structure for this class

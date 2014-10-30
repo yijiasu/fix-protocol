@@ -27,6 +27,10 @@ module Fix
         "#{tag}=#{@value}\x01"
       end
 
+      def can_parse?(str)
+        str.match(/^#{tag}\=[^\x01]+\x01/)
+      end
+
       #
       # Parses the value for this field from the beginning of the string passed as parameter
       # and return the rest of the string. The field value is assigned to the +@value+ instance variable

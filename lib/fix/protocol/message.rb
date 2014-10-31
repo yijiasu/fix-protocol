@@ -38,7 +38,7 @@ module Fix
       def dump
         if valid?
           dumped = super
-          header.body_length = dumped.gsub(/^8=[^\x01]+\x019=[^\x01]+\x01/, '').length
+          header.body_length = dumped.gsub(/^8=[^\x01]+\x01/, '').gsub(/^9=[^\x01]+\x01/, '').length
           dumped = super
           "#{dumped}10=#{'%03d' % (dumped.bytes.inject(&:+) % 256)}\x01"
         end

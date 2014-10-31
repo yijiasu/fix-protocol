@@ -23,7 +23,7 @@ describe 'FP::Messages::Logon' do
       msg = "8=FIX.4.4\x019=61\x0135=A\x0149=INVMGR\x0156=BRKR\x0134=1\x0152=20000426-12:05:06\x0198=0\x01108=30\x0110=047\x01"
       parsed = FP.parse(msg)
       expect(parsed).to be_a(FP::ParseFailure)
-      expect(parsed.errors).to include("Expected <10=047\u0001> to start with a <553=...|> required field")
+      expect(parsed.errors).to include("Missing value for <username> field")
     end
   end
 
@@ -31,8 +31,8 @@ describe 'FP::Messages::Logon' do
     it 'should set a body field' do
       m = FP::Messages::Logon.new
       m.username = 'john'
-      expect(m.nodes[3].value).to eql('john')
-      expect(m.nodes[3].tag).to eql(553)
+      expect(m.node_for_name('body').node_for_name('username').value).to eql('john')
+      expect(m.node_for_name('body').node_for_name('username').tag).to eql(553)
       expect(m.username).to eql('john')
     end
   end

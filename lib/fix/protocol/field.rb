@@ -42,8 +42,6 @@ module Fix
         if str.match(/^#{tag}\=([^\x01]+)\x01/)
           @value = $1
           str.gsub(/^[^\x01]+\x01/, '')
-        elsif required
-          self.parse_failure = "Expected <#{str}> to start with a <#{tag}=...|> required field"  
         else
           str
         end

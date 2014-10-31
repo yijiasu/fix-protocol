@@ -7,8 +7,8 @@ module Fix
       #
       class Reject < Message
 
-        has_field :ref_seq_num, tag: 45, position: 0, required: true, type: :integer
-        has_field :text,        tag: 58, position: 1, required: true
+        field :ref_seq_num, tag: 45, required: true, type: :integer
+        field :text,        tag: 58, required: true
 
       end
     end

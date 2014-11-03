@@ -1,3 +1,4 @@
+require 'forwardable'
 require 'fix/protocol/field'
 
 module Fix
@@ -7,6 +8,8 @@ module Fix
     # Basic building block for messages. Message parts can define fields, sub-parts and collections
     #
     class MessagePart
+
+      extend Forwardable
 
       attr_accessor :parse_failure, :name, :delegations
 
@@ -127,23 +130,25 @@ module Fix
       #
       def self.part(name, opts = {}, &block)
         options = { node_type: :part, name: name, delegate: true }.merge(opts)
+        klass   = options[:klass]
 
+        # If a block is given it overrides the +:klass+ option
         if block_given?
           names = (to_s + name.to_s.split(/\_/).map(&:capitalize).join).split('::')
           klass = names.pop
           parent_klass = (options[:node_type] == :part) ? MessagePart : UnorderedPart
           klass = Object.const_get(names.join('::')).const_set(klass, Class.new(parent_klass))
           klass.instance_eval(&block)
-
-          # Do we need to delegate some methods from the parent node ?
-          delegations = klass.instance_variable_get(:@delegations)
-          if delegations && !delegations.empty? && options[:delegate]
-            extend Forwardable
-            def_delegators(name, *delegations)
-            parent_delegate(*delegations)
-          end
-
           options.merge!({ klass: klass })
+        elsif options[:klass]
+          parent_delegate(name)
+        end
+
+        # Do we need to delegate some methods from the parent node ?
+        delegations = klass.instance_variable_get(:@delegations)
+        if delegations && !delegations.empty? && options[:delegate]
+          def_delegators(name, *delegations)
+          parent_delegate(*delegations)
         end
 
         structure << options.merge(opts)

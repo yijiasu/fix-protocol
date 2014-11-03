@@ -8,7 +8,7 @@ module Fix
     #
     class MessagePart
 
-      attr_accessor :parse_failure, :name
+      attr_accessor :parse_failure, :name, :delegations
 
       def initialize(opts = {})
         self.name = opts[:name]
@@ -56,14 +56,12 @@ module Fix
       # part instance by the constructor. Usually one node is initialized for each structure element
       #
       def initialize_node(node)
-        if node[:node_type] == :part
+        if [:unordered, :part].include?(node[:node_type])
           nodes << node[:klass].new(node)
         elsif node[:node_type] == :field
           nodes << FP::Field.new(node)
         elsif node[:node_type] == :collection
           nodes << FP::RepeatingMessagePart.new(node)
-        elsif node[:node_type] == :unordered
-          nodes << node[:klass].new(node)
         end
       end
 
@@ -96,6 +94,16 @@ module Fix
       end
 
       #
+      # Defines the attributes that should be accessible from the parent node
+      #
+      # @param args [Array<Symbol>] The methods that the parent should respond to and delegate to the child
+      #
+      def self.parent_delegate(*args)
+        @delegations ||= []
+        args.each { |a| @delegations << a }
+      end
+
+      #
       # Defines a collection as a part of this message part, collections typically have a counter and a repeating element
       #
       # @param name [String] The collection name, this will be the name of a dynamically created accessor on the message part
@@ -107,6 +115,8 @@ module Fix
         define_method(name) do
           node_for_name(name)
         end
+
+        parent_delegate(name)
       end
 
       #
@@ -115,8 +125,28 @@ module Fix
       # @param name [String] The part name, this will be the name of a dynamically created accessor on the message part
       # @param opts [Hash] Options hash
       #
-      def self.part(name, opts = {})
-        structure << { node_type: :part, name: name }.merge(opts)
+      def self.part(name, opts = {}, &block)
+        options = { node_type: :part, name: name, delegate: true }.merge(opts)
+
+        if block_given?
+          names = (to_s + name.to_s.split(/\_/).map(&:capitalize).join).split('::')
+          klass = names.pop
+          parent_klass = (options[:node_type] == :part) ? MessagePart : UnorderedPart
+          klass = Object.const_get(names.join('::')).const_set(klass, Class.new(parent_klass))
+          klass.instance_eval(&block)
+
+          # Do we need to delegate some methods from the parent node ?
+          delegations = klass.instance_variable_get(:@delegations)
+          if delegations && !delegations.empty? && options[:delegate]
+            extend Forwardable
+            def_delegators(name, *delegations)
+            parent_delegate(*delegations)
+          end
+
+          options.merge!({ klass: klass })
+        end
+
+        structure << options.merge(opts)
 
         define_method(name) do
           node_for_name(name)
@@ -129,10 +159,9 @@ module Fix
       # @param name [String] The part name, this will be the name of a dynamically created accessor on the message part
       # @param opts [Hash] Options hash
       #
-      def self.unordered(name, opts = {})
-        part(name, opts.merge({ node_type: :unordered }))
+      def self.unordered(name, opts = {}, &block)
+        part(name, opts.merge({ node_type: :unordered }), &block)
       end
-
 
       #
       # Defines a field as part of the structure for this class
@@ -162,6 +191,9 @@ module Fix
             node_for_name(name).raw_value = val
           end
         end
+
+        # Delegate getter and setter from parent node
+        parent_delegate(name, "#{name}=") 
       end
 
       #

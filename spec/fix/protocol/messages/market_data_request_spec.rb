@@ -55,7 +55,12 @@ describe 'Fix::Protocol::Messages::MarketDataRequest' do
     it 'should fail to parse a repeating group when the counter is missing' do
       bogus_msg = "8=FIX.4.4|9=133|35=V|49=DAVID_SND|56=PYMBTCDEV|34=3|52=20141014-11:24:41|262=X|263=1|264=0|265=1|269=0|269=1|269=2|269=4|269=5|269=9|146=1|55=EURXBT|10=252|".gsub(/\|/, "\x01")
       parsed = FP.parse(bogus_msg)
-      expect(parsed.errors).to include("Expected <269=0\u0001269=1\u0001269=2\u0001269=4\u0001269=5\u0001269=9\u0001146=1\u000155=EURXBT\u000110=252\u0001> to begin with <267=...|>")
+      expect(parsed.errors).to include("MdEntryTypes can not be empty")
+    end
+
+    it 'should correctly parse a message with fields in a different order' do
+      msg = "8=FIX.4.4|9=133|35=V|34=2|49=DUKENUKEM|52=20141103-17:43:13.901|56=PAYMIUM_DEV|146=1|55=EUR/XBT|262=MDRQ-1415036593798|263=1|264=1|265=1|267=1|269=1|10=012|".gsub(/\|/, "\x01")
+      expect(FP.parse(msg)).to be_an_instance_of(FP::Messages::MarketDataRequest)
     end
   end
 

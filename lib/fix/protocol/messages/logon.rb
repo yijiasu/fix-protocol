@@ -1,5 +1,3 @@
-require 'fix/protocol/messages/logon_body'
-
 module Fix
   module Protocol
     module Messages
@@ -9,11 +7,12 @@ module Fix
       #
       class Logon < Message
 
-        extend Forwardable
-        def_delegators :body, :encrypt_method, :encrypt_method=, :heart_bt_int, :heart_bt_int=,
-          :username, :username=, :reset_seq_num_flag, :reset_seq_num_flag=
-
-        unordered :body, klass: LogonBody
+        unordered :body do
+          field :encrypt_method,      tag: 98,  required: true, type: :integer, default: 0
+          field :heart_bt_int,        tag: 108, required: true, type: :integer, default: 30
+          field :username,            tag: 553, required: true
+          field :reset_seq_num_flag,  tag: 141,                 type: :yn_bool, default: false
+        end
 
         #
         # Returns the logon-specific errors

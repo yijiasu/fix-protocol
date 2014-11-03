@@ -10,8 +10,10 @@ module Fix
       #
       class MarketDataIncrementalRefresh < Message
 
-        field :md_req_id, tag: 262, required: true
-        collection :md_entries, counter_tag: 268, klass: FP::Messages::MdEntry
+        unordered :body do
+          field :md_req_id, tag: 262, required: true
+          collection :md_entries, counter_tag: 268, klass: FP::Messages::MdEntry
+        end
 
       end
     end

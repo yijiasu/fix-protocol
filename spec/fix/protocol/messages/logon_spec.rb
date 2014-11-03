@@ -25,6 +25,14 @@ describe 'FP::Messages::Logon' do
       expect(parsed).to be_a(FP::ParseFailure)
       expect(parsed.errors).to include("Missing value for <username> field")
     end
+
+    it 'should correctly parse the reset_seq_num_flag as a boolean' do
+      msg_true = "8=FIX.4.4\x019=96\x0135=A\x0149=DUKENUKEM\x0156=PAYMIUM_DEV\x0134=1\x0152=20141103-15:54:39.130\x0198=0\x01108=30\x01553=JAVA_TESTS\x01141=Y\x0110=037\x01"
+      expect(FP.parse(msg_true).reset_seq_num_flag).to eql(true)
+
+      msg_false = "8=FIX.4.4\x019=96\x0135=A\x0149=DUKENUKEM\x0156=PAYMIUM_DEV\x0134=1\x0152=20141103-15:54:39.130\x0198=0\x01108=30\x01553=JAVA_TESTS\x01141=N\x0110=026\x01"
+      expect(FP.parse(msg_false).reset_seq_num_flag).to eql(false)
+    end
   end
 
   describe '#username' do
@@ -72,6 +80,14 @@ describe 'FP::Messages::Logon' do
       msg.username              = 'TEST_USERNAME'
 
       expect(msg.dump).to be_a_kind_of(String)
+    end
+
+    it 'should correctly dump the reset_seq_num_flag' do
+      msg = FP.parse("8=FIX.4.4\x019=96\x0135=A\x0149=DUKENUKEM\x0156=PAYMIUM_DEV\x0134=1\x0152=20141103-15:54:39.130\x0198=0\x01108=30\x01553=JAVA_TESTS\x01141=Y\x0110=037\x01")
+      expect(msg.dump).to match(/141\=Y/)
+
+      msg.reset_seq_num_flag = false
+      expect(msg.dump).to match(/141\=N/)
     end
   end
 

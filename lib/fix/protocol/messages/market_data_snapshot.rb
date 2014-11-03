@@ -10,11 +10,11 @@ module Fix
       #
       class MarketDataSnapshot < Message
 
-        field :md_req_id, tag: 262, required: true
-
-        part  :instrument, klass: FP::Messages::Instrument
-
-        collection :md_entries, counter_tag: 268, klass: FP::Messages::MdEntry
+        unordered :body do
+          field :md_req_id, tag: 262, required: true
+          part  :instrument, klass: FP::Messages::Instrument
+          collection :md_entries, counter_tag: 268, klass: FP::Messages::MdEntry
+        end
 
       end
     end

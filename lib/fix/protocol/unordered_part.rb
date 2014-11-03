@@ -12,10 +12,12 @@ module Fix
       # @return [String] The string part that wasn't consumed during the parsing
       #
       def parse(str)
+
         left_to_parse     = str
         left_before_pass  = nil
 
         while (left_to_parse != left_before_pass) && !parse_failure
+
           left_before_pass = left_to_parse
 
           nodes.each do |node|

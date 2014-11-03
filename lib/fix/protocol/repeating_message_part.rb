@@ -11,7 +11,7 @@ module Fix
     class RepeatingMessagePart < MessagePart
 
       extend Forwardable
-      def_delegators :nodes, :[], :first, :last, :length, :size, :each
+      def_delegators :nodes, :[], :first, :last, :length, :size, :each, :empty?
 
       include Enumerable
 
@@ -46,6 +46,16 @@ module Fix
       end
 
       #
+      # Checks whether the start of the given string can be parsed as this particular field
+      #
+      # @param str [String] The string for which we want to parse the beginning
+      # @return [Boolean] Whether the beginning of the string can be parsed for this field
+      #
+      def can_parse?(str)
+        str =~ /^#{counter_tag}\=[^\x01]+\x01/
+      end
+
+      #
       # Parses an arbitrary number of nodes according to the found counter tag
       #
       def parse(str)
@@ -54,8 +64,6 @@ module Fix
           @nodes = []
           len.times { @nodes << element_klass.new }
           super(str.gsub(/^#{counter_tag}\=[^\x01]+\x01/, ''))
-        else
-          self.parse_failure = "Expected <#{str}> to begin with <#{counter_tag}=...|>"
         end
       end
 

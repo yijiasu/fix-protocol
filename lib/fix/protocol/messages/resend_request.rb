@@ -7,8 +7,10 @@ module Fix
       #
       class ResendRequest < Message
 
-        field :begin_seq_no,  tag: 7,  required: true, type: :integer
-        field :end_seq_no,    tag: 16, required: true, type: :integer, default: 0
+        unordered :body do
+          field :begin_seq_no,  tag: 7,  required: true, type: :integer
+          field :end_seq_no,    tag: 16, required: true, type: :integer, default: 0
+        end
 
         #
         # Returns the logon-specific errors

@@ -1,11 +1,6 @@
-require 'polyglot'
-require 'treetop'
-require 'forwardable'
-
 require 'fix/protocol/message_part'
 require 'fix/protocol/unordered_part'
 require 'fix/protocol/repeating_message_part'
-require 'fix/protocol/message_header'
 
 module Fix
   module Protocol
@@ -15,14 +10,18 @@ module Fix
     #
     class Message < MessagePart
 
-      extend Forwardable
-      def_delegators :header, 
-        :sender_comp_id, :sender_comp_id=, 
-        :target_comp_id, :target_comp_id=,
-        :msg_seq_num, :msg_seq_num=,
-        :sending_time, :sending_time=
+      part :header do
+        field :version,     tag: 8, required: true, default: 'FIX.4.4'
+        field :body_length, tag: 9
 
-      part :header, klass: MessageHeader
+        unordered :header_fields do
+          field :msg_type,        tag: 35,  required: true
+          field :sender_comp_id,  tag: 49,  required: true
+          field :target_comp_id,  tag: 56,  required: true
+          field :msg_seq_num,     tag: 34,  required: true, type: :integer
+          field :sending_time,    tag: 52,  required: true, type: :timestamp, default: proc { Time.now }
+        end
+      end
 
       def initialize
         super
@@ -51,6 +50,19 @@ module Fix
       #
       def valid?
         (errors.nil? || errors.empty?) && parse_failure.nil?
+      end
+
+      #
+      # Returns the errors relevant to the message header
+      #
+      # @return [Array<String>] The errors on the message header
+      #
+      def errors
+        if (version == 'FIX.4.4')
+          super
+        else
+          [super, "Unsupported version: <#{version}>"].flatten
+        end
       end
 
     end

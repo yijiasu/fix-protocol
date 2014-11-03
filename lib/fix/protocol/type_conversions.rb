@@ -49,6 +49,26 @@ module Fix
         i.to_s
       end
 
+      #
+      # Dumps a boolean to a Y/N FIX string
+      #
+      # @param b [Boolean] A boolean
+      # @return [String] 'Y' if the parameter is true, 'N' otherwise
+      #
+      def dump_yn_bool(b)
+        b ? 'Y' : 'N'
+      end
+
+      #
+      # Parses a string into a boolean value
+      #
+      # @param str [String] The string to parse
+      # @return [Boolean] +true+ if the string is 'Y', +false+ otherwise
+      #
+      def parse_yn_bool(str)
+        !!(str == 'Y')
+      end
+
     end
   end
 end

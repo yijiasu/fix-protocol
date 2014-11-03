@@ -11,7 +11,7 @@ module Fix
 
         extend Forwardable
         def_delegators :body, :encrypt_method, :encrypt_method=, :heart_bt_int, :heart_bt_int=,
-          :username, :username=, :reset_seq_num, :reset_seq_num=
+          :username, :username=, :reset_seq_num_flag, :reset_seq_num_flag=
 
         unordered :body, klass: LogonBody
 

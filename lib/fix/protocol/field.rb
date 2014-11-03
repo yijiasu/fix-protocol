@@ -109,9 +109,9 @@ module Fix
       # @return [String] The FIX field value
       #
       def from_type(obj)
-        if obj && type && !mapping
+        if !obj.nil? && type && !mapping
           send("dump_#{type}", obj)
-        elsif obj && mapping && mapping.has_key?(obj)
+        elsif !obj.nil? && mapping && mapping.has_key?(obj)
           mapping[obj]
         else
           obj

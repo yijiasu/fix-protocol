@@ -14,9 +14,9 @@ module Fix
         # The subscription type, see: http://www.onixs.biz/fix-dictionary/4.4/tagNum_263.html
         #
         SUBSCRIPTION_TYPES = {
-          snapshot:     1,
-          updates:      2,
-          unsubscribe:  3
+          snapshot:     0,
+          updates:      1,
+          unsubscribe:  2
         }
 
         #

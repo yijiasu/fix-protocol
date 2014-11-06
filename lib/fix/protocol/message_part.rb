@@ -137,7 +137,7 @@ module Fix
           names = (to_s + name.to_s.split(/\_/).map(&:capitalize).join).split('::')
           klass = names.pop
           parent_klass = (options[:node_type] == :part) ? MessagePart : UnorderedPart
-          klass = Object.const_get(names.join('::')).const_set(klass, Class.new(parent_klass))
+          klass = names.inject(Object) { |mem, obj| mem = mem.const_get(obj) }.const_set(klass, Class.new(parent_klass))
           klass.instance_eval(&block)
           options.merge!({ klass: klass })
         elsif options[:klass]

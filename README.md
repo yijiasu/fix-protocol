@@ -3,7 +3,7 @@ FIX Protocol [![Build Status](https://secure.travis-ci.org/Paymium/fix-protocol.
 
 This FIX protocol wrapper enables one to easily parse and create messages complying with the FIX 4.4 specification. 
 
-It includes definitions for admin messages (logon, heartbeat, resend request, test request), for some market data messages (market data request, market data snapshot, and market data incremental refresh) as well as the ability to easily define other ones.
+It includes definitions for admin messages (logon, logout, reject, heartbeat, resend request, test request), for some market data messages (market data request, market data snapshot, and market data incremental refresh) as well as the ability to easily define other ones.
 
 ## Message creation example
 

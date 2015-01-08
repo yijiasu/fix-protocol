@@ -1,5 +1,3 @@
-#require 'treetop'
-
 require 'fix/protocol/version'
 require 'fix/protocol/message'
 require 'fix/protocol/message_class_mapping'

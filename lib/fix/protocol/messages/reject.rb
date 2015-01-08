@@ -9,7 +9,7 @@ module Fix
 
         unordered :body do
           field :ref_seq_num, tag: 45, required: true, type: :integer
-          field :text,        tag: 58, required: true
+          field :text,        tag: 58
         end
 
       end

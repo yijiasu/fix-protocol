@@ -4,7 +4,7 @@ module Fix
     #
     # The fix-protocol gem version string
     #   
-    VERSION = '0.0.64'
+    VERSION = '1.0.0'
 
   end
 end

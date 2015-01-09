@@ -14,6 +14,11 @@ module Fix
       DEFAULT_VERSION = 'FIX.4.4'
       @@expected_version = DEFAULT_VERSION
 
+      #
+      # Allows the version tag to be overridden at runtime
+      #
+      # @param version [String] The version to output and expect in messages
+      #
       def self.version=(v)
         @@expected_version = v
       end

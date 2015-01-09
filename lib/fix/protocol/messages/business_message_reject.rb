@@ -7,6 +7,9 @@ module Fix
       #
       class BusinessMessageReject < Message
 
+        #
+        # The business reject reason codes
+        #
         BUSINESS_REJECT_REASONS = {
           0 => 'Other',
           1 => 'Unkown ID',

@@ -41,8 +41,9 @@ module Fix
 
         # Check checksum
         checksum = str.match(/10\=([^\x01]+)\x01/)[1]
-        if checksum != ('%03d' % (str.gsub(/10\=[^\x01]+\x01/, '').bytes.inject(&:+) % 256))
-          errors << "Incorrect checksum"
+        expected = ('%03d' % (str.gsub(/10\=[^\x01]+\x01/, '').bytes.inject(&:+) % 256))
+        if checksum != expected
+          errors << "Incorrect checksum, expected <#{expected}>, got <#{checksum}>"
         end
 
         if errors.empty?

@@ -23,11 +23,19 @@ describe Fix::Protocol::Message do
       expect(failure).to be_a_kind_of(Fix::Protocol::ParseFailure)
     end
 
-    it 'should return a failure when the version is not supported' do
+    it 'should return a failure when the version is not expected' do
       msg = "8=FOO.4.2\u00019=73\u000135=0\u000149=BRKR\u000156=INVMGR\u000134=235\u000152=19980604-07:58:28\u0001112=19980604-07:58:28\u000110=233\u0001"
       failure = Fix::Protocol.parse(msg)
       expect(failure).to be_a_kind_of(Fix::Protocol::ParseFailure)
-      expect(failure.errors).to include("Unsupported version: <FOO.4.2>")
+      expect(failure.errors).to include("Unsupported version: <FOO.4.2>, expected <FIX.4.4>")
+    end
+
+    it 'should not return a failure when the version is expected' do
+      FP::Message.version = 'FOO.4.2'
+      msg = "8=FOO.4.2\u00019=73\u000135=0\u000149=BRKR\u000156=INVMGR\u000134=235\u000152=19980604-07:58:28\u0001112=19980604-07:58:28\u000110=233\u0001"
+      failure = Fix::Protocol.parse(msg)
+      expect(failure).to be_a_kind_of(Fix::Protocol::Message)
+      FP::Message.version = 'FIX.4.4'
     end
 
     it 'should return a failure when the message type is incorrect' do
@@ -41,7 +49,7 @@ describe Fix::Protocol::Message do
       msg = "8=FOO.4.2\u00019=73\u000135=0\u000149=BRKR\u000156=INVMGR\u000134=235\u000152=19980604-07:58:28\u0001112=19980604-07:58:28\u000110=235\u0001"
       failure = Fix::Protocol.parse(msg)
       expect(failure).to be_a_kind_of(Fix::Protocol::ParseFailure)
-      expect(failure.errors).to include("Incorrect checksum")
+      expect(failure.errors).to include("Incorrect checksum, expected <233>, got <235>")
     end
 
     it 'should return a failure when the body length is incorrect' do

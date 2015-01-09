@@ -10,8 +10,16 @@ module Fix
     #
     class Message < MessagePart
 
+      # Default version for when we do not specify anything
+      DEFAULT_VERSION = 'FIX.4.4'
+      @@expected_version = DEFAULT_VERSION
+
+      def self.version=(v)
+        @@expected_version = v
+      end
+
       part :header do
-        field :version,     tag: 8, required: true, default: 'FIX.4.4'
+        field :version,     tag: 8, required: true, default: @@expected_version
         field :body_length, tag: 9
 
         unordered :header_fields do
@@ -58,10 +66,10 @@ module Fix
       # @return [Array<String>] The errors on the message header
       #
       def errors
-        if (version == 'FIX.4.4')
+        if (version == @@expected_version)
           super
         else
-          [super, "Unsupported version: <#{version}>"].flatten
+          [super, "Unsupported version: <#{version}>, expected <#{@@expected_version}>"].flatten
         end
       end
 

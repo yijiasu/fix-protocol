@@ -10,7 +10,7 @@ module Fix
       class SequenceReset < Message
 
         field :gap_fill_flag,   tag: 123, type: :yn_bool, default: false
-        field :new_seq_no,      tag: 36,  type: integer,  required: true
+        field :new_seq_no,      tag: 36,  type: :integer, required: true
 
       end
 

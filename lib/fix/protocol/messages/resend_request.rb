@@ -19,7 +19,7 @@ module Fix
         #
         def errors
           e = []
-          e << "EndSeqNo must either be 0 (inifinity) or be >= BeginSeqNo" unless (end_seq_no.zero? || (end_seq_no >= begin_seq_no))
+          e << "EndSeqNo must either be 0 (inifinity) or be >= BeginSeqNo" unless (begin_seq_no && (end_seq_no.zero? || (end_seq_no >= begin_seq_no)))
           [super, e].flatten
         end
 

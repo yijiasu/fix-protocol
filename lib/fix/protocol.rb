@@ -1,5 +1,5 @@
 require 'fix/protocol/version'
-require 'fix/protocol/message'
+require 'fix/protocol/messages'
 require 'fix/protocol/message_class_mapping'
 require 'fix/protocol/parse_failure'
 
@@ -12,6 +12,11 @@ module Fix
   # Main protocol namespace
   #
   module Protocol
+
+    #
+    # The default version of the protocol to use
+    #
+    DEFAULT_FIX_PROTOCOL_VERSION = 'FIX.4.4'
 
     #
     # Parses a string into a Fix::Protocol::Message instance
@@ -67,8 +72,34 @@ module Fix
       Object.const_set(:FP, Protocol) unless Object.const_defined?(:FP)
     end
 
+    #
+    # Formats a symbol as a proper class name
+    #
+    # @param s [Symbol] A name to camelcase
+    # @return [Symbol] A camelcased class name
+    #
+    def self.camelcase(s)
+      s.to_s.split(' ').map { |str| str.split('_') }.flatten.map(&:capitalize).join.to_sym
+    end
+
+    #
+    # Sets up the autoloading mechanism according to the relevant FIX version
+    #
+    def self.setup_autoload!
+      ver = @fix_protocol_version || DEFAULT_FIX_PROTOCOL_VERSION
+      folder = File.join(File.dirname(__FILE__), "protocol/messages/#{ver.gsub(/\./, '').downcase}")
+
+      Dir["#{folder}/*.rb"].each do |file| 
+        klass = camelcase(file.match(/([^\/]+)\.rb$/)[1])
+        Messages.autoload(klass, file)
+      end
+
+    end
   end
 end
 
 Fix::Protocol.alias_namespace!
+Fix::Protocol.setup_autoload!
+
+require 'fix/protocol/message'
 

@@ -1,7 +1,6 @@
 require 'fix/protocol/message_part'
 require 'fix/protocol/unordered_part'
 require 'fix/protocol/repeating_message_part'
-require 'fix/protocol/messages/header'
 
 module Fix
   module Protocol

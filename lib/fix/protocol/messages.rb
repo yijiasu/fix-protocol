@@ -4,7 +4,8 @@ module Fix
     #
     # The message classes container module
     #
-    Messages = Fix44
+    module Messages
+    end
 
   end
 end

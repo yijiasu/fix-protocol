@@ -18,7 +18,7 @@ module Fix
       #
       # Allows the version tag to be overridden at runtime
       #
-      # @param version [String] The version to output and expect in messages
+      # @param v [String] The version to output and expect in messages
       #
       def self.version=(v)
         @@expected_version = v
